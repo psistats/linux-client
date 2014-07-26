@@ -46,6 +46,11 @@ Uninstallation
 
 Changelog
 ---------
+v0.0.3
+- Added tools to create init script and configuration files in /etc
+- Added ping feature
+- More robust/fault tolerant
+- Handles pika bug where AttributeError might be raised if connection is unexpectedly closed
 
 v0.0.2
 - Project is now a proper python project
