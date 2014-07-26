@@ -1,0 +1,172 @@
+#!/usr/bin/env python
+### BEGIN INIT INFO
+# Provides: psistats
+# Required-Start: $remote_fs $syslog
+# Required-Stop: $remote_fs $syslog
+# Default-Start: 2 3 4 5 
+# Default-Stop: 1
+# Short-Description: Psistats
+# Description: Runs the Psistats reporting service
+### END INIT INFO
+
+# Author: Alex Dowgailenko <v0idnull@psikon.com>
+
+import sys
+import os
+import psutil
+import time
+import stat
+from daemon import runner
+from psistats.app import main
+from psistats import config
+import psistats
+
+
+def out(msg):
+    sys.stdout.write(msg)
+    sys.stdout.flush()
+
+
+def is_running(pidfile):
+
+    try:
+        f = open(pidfile)
+        pid = f.read()
+        if psutil.pid_exists(int(pid)) == True:
+            return True
+        else:
+            return False
+    except:
+        return False
+
+
+def start():
+    out('[x] Starting Psistats service... ')
+
+    psistats = main.Main(config.get_config())
+
+    if is_running(psistats.pidfile_path) == True:
+        out("Already running!\n")
+    else:
+        newpid = os.fork()
+
+        if newpid == 0:
+            daemon_runner = runner.DaemonRunner(psistats)
+            daemon_runner.do_action()
+
+            sys.exit()
+        else:
+            out("ok\n")
+
+
+def stop():
+    out('[x] Stopping Psistats service... ')
+    psistats = main.Main(config.get_config())
+    with open(psistats.pidfile_path) as f:
+        pid = int(f.read())
+
+        while True:
+            out('.')
+            try:
+                os.kill(pid, 9)
+            except OSError:
+                pass
+
+            if psutil.pid_exists(pid):
+                time.sleep(1)
+            else:
+                break
+    out(" ok\n")
+
+
+def status():
+    psistats = main.Main(config.get_config())
+    if is_running(psistats.pidfile_path) == True:
+        print "running"
+    else:
+        print "not running"
+
+
+def install_config():
+    out("[x] Installing configuration ... ")
+    psistats_dir = os.path.dirname(psistats.__file__)
+
+    src_file = "%s/../config/psistats.conf" % psistats_dir
+    target_file = "/etc/psistats.conf"
+
+    try:
+        tf = open(target_file, 'w')
+        sf = open(src_file, 'r')
+
+        tf.write(sf.read())
+
+        tf.close()
+        sf.close()
+
+        out("ok!\n")
+        out("You can now configure Psistats by editing the file at %s\n" % target_file)
+
+    except IOError as e:
+        if e.errno == 13:
+            out("Failed: No Permission!\n")
+        else:
+            out("Failed: [%s] %s\n" % (e.errno, e.message))
+        sys.exit(1)
+
+
+def install_init():
+    out("[x] Installing init script ... ")
+
+    psistats_dir = os.path.dirname(psistats.__file__)
+
+    src_file = "%s/../scripts/psistats-service" % psistats_dir
+    target_file = "/etc/init.d/psistats"
+
+    try:
+        tf = open(target_file, 'w')
+        sf = open(src_file, 'r')
+        tf.write(sf.read())
+        tf.close()
+        sf.close()
+
+        os.chmod(target_file, stat.S_IEXEC | stat.S_IREAD)
+
+        out("ok!\n")
+        out("On some sytems, you may need to run the following command to complete the installation:\n")
+        out("update-rc.d psistats defaults\n")
+        out("\n")
+        out("This file will not be removed when you do pip uninstall psistats and needs to be removed manually\n")
+        out("You can now start psistats by running /etc/init.d/psistats start\n")
+        out("\n")
+
+    except IOError as e:
+        if e.errno == 13:
+            out("Failed: No Permission!\n")
+        else:
+            out("Failed! - %s" % e.message)
+        sys.exit(1)
+
+retval = 0
+
+if len(sys.argv) != 2:
+    print "psitats [start|stop|restart|status|install-init]"
+    retval = 1
+elif sys.argv[1] == 'start':
+    start()
+elif sys.argv[1] == 'stop':
+    stop()
+elif sys.argv[1] == 'restart':
+    stop()
+    start()
+elif sys.argv[1] == 'status':
+    status()
+elif sys.argv[1] == 'install-init':
+    install_init()
+elif sys.argv[1] == 'install-config':
+    install_config()
+else:
+    print "psistats [start|stop|restart|status|install-init|install-config]"
+    retval = 1
+
+sys.exit(retval)
+
