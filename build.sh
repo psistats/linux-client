@@ -43,9 +43,7 @@ fi
 
 
 VERSION=$(cat $WORKSPACE/VERSION)
-SVN_REV=$(svn info | grep "Revision" | awk '{split($0,array,": ")} END{print array[2]}')
 
-VERSION=$VERSION-$SVN_REV
 DIST_NAME=psistats-$VERSION
 DIST_DIR=$WORKSPACE/dist/psistats-$VERSION
 
