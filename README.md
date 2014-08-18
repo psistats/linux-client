@@ -46,6 +46,11 @@ Uninstallation
 
 Changelog
 ---------
+v0.0.4
+- Removed ping feature
+- Message sending is now mandatory so if queue or exchange is removed, client will try to recreate the connection
+- More sensible default logging parameters, including exposing pika-related logging
+
 v0.0.3
 - Added tools to create init script and configuration files in /etc
 - Added ping feature
