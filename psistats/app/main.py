@@ -11,6 +11,7 @@ import sys
 import simplejson as json
 from psistats.queue import get_connection, setup_queue, send_json, ping
 from pika.exceptions import AMQPConnectionError, ConnectionClosed, ChannelClosed
+from psistats.exceptions import MessageNotSent
 
 
 class Main(object):
@@ -53,8 +54,6 @@ class Main(object):
         # send uptime and ip address updates
         meta_refresh_counter = config['app']['meta_timer']
 
-        ping_counter = config['app']['ping_timer']
-
         sleep = config['app']['timer']
 
         try:
@@ -62,16 +61,6 @@ class Main(object):
             while True:
 
                 try:
-                    if ping_counter == config['app']['ping_timer']:
-                        ping_counter = 1
-                        logger.debug("ping")
-                        try:
-                            ping(config['server'])
-                        except (AMQPConnectionError, ChannelClosed) as e:
-                            connected = False
-                    else:
-                        ping_counter += 1
-                    
 
                     if connected == False:
                         logger.info("Creating connection")
@@ -110,7 +99,7 @@ class Main(object):
                     logger.exception(e)
                     logger.debug('Retrying in %i seconds' % config['app']['retry_timer'])
                     connected = False
-                    if connection != None:
+                    if connection != None and connection.is_closed == False:
                         try:
                             connection.close()
                         except ConnectionClosed:
@@ -121,6 +110,12 @@ class Main(object):
                 except AttributeError as e:
                     logger.exception(sys.exc_info()[1])
                     logger.error("This could be caused by a problem with the RabbitMQ server!! We are going to restart the connection to be safe!!")
+                    connection = None
+                    channel = None
+                    connected = False
+                except MessageNotSent as e:
+                    logger.exception(sys.exc_info()[1])
+                    logger.error("MessageNotSent exception - this could be caused by RabbitMQ shutting down, or the queue being deleted. Resetting connection to be sure.")
                     connection = None
                     channel = None
                     connected = False

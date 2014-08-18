@@ -4,7 +4,7 @@ Created on Jun 21, 2014
 @author: v0idnull
 '''
 import pika
-
+from psistats.exceptions import MessageNotSent
 
 def get_connection(config):
     credentials = pika.PlainCredentials(config['user'], config['pass'])
@@ -24,15 +24,19 @@ def ping(config):
     connection.close()
 
 def send_json(json, channel, exchange_name, queue_name):
-    channel.basic_publish(
+    retval = channel.basic_publish(
         exchange=exchange_name,
         routing_key=queue_name,
+        mandatory=True,
         body=json,
         properties=pika.spec.BasicProperties(
             content_type="application/json",
             content_encoding="utf-8"
         )
     )
+
+    if retval == False:
+        raise MessageNotSent("Message not sent, enable pika logging for more information")
 
 
 def setup_queue(channel, exchange_config, queue_config):
