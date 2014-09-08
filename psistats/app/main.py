@@ -86,6 +86,9 @@ class Main(object):
                         packet['uptime'] = stats.uptime()
                         meta_refresh_counter = 1
 
+                    if config['cpu_temp']['enabled']:
+                        packet['cpu_temp'] = stats.cpu_temp()
+
                     packet_json = json.dumps(packet)
                     logger.debug('Sending packet: %s' % packet_json)
                     send_json(packet_json, channel, config['exchange']['name'], config['queue']['name'])

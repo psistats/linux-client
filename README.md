@@ -23,6 +23,8 @@ Uptime is in seconds.
 
 Uptime and IP Addresses are sent at a longer rate than cpu and memory however that rate is configurable.
 
+CPU Temperature is enabled by default, but may not work on all systems.
+
 
 Installation
 ------------
@@ -47,6 +49,7 @@ Uninstallation
 Changelog
 ---------
 v0.0.4
+- Added cpu temperature
 - Removed ping feature
 - Message sending is now mandatory so if queue or exchange is removed, client will try to recreate the connection
 - More sensible default logging parameters, including exposing pika-related logging
