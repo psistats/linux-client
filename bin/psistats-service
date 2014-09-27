@@ -13,15 +13,10 @@
 
 # Do NOT "set -e"
 
-PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-DESC="Psistats Linux Client"
-HOME=/opt/psistats
-NAME=psistats
-PIDFILE=/var/run/$NAME.pid
-SCRIPT=$NAME
-
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+SCRIPT=psistats
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh

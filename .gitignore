@@ -2,4 +2,5 @@
 /.pydevproject
 /build
 /dist
+/deb_dist
 /psistats.egg-info

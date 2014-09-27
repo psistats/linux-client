@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
   TARGET="$(readlink "$SOURCE")"
@@ -14,20 +15,36 @@ while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 echo "SOURCE is '$SOURCE'"
 RDIR="$( dirname "$SOURCE" )"
-DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+export DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 if [ "$DIR" != "$RDIR" ]; then
   echo "DIR '$RDIR' resolves to '$DIR'"
 fi
 echo "DIR is '$DIR'"
 
+export PROJECT_DIR=$( readlink -f "$DIR/../" )
 
-VERSION=$(cat VERSION)
-ARTIFACT_ID=psistats
-CONFIG=$DIR/build-configs/debian/stdeb.cfg
 
-echo "CONFIG is '$CONFIG'"
+export VERSION=$(cat VERSION)
+export ARTIFACT_ID=psistats
 
-python setup.py --command-packages=stdeb.command sdist_dsc --extra-cfg-file=$CONFIG
-cd deb_dist/$ARTIFACT_ID-$VERSION
-dpkg-buildpackage -rfakeroot -uc -us
+echo "VERSION is '$VERSION'"
+echo "ARTIFACT_ID is '$ARTIFACT_ID'"
+echo "PROJECT_DIR id '$PROJECT_DIR'"
+
+cd $PROJECT_DIR
+
+$DIR/build-src.sh
+RETCODE=$?
+
+if [[ $RETCODE != 0 ]]; then
+    echo "[ERROR] build-src.sh script failed"
+    exit 1
+fi
+
+$DIR/build-debian.sh
+if [[ $RETCODE != 0 ]]; then
+    echo "[ERROR] build-debian.sh script failed"
+    exit 1
+fi
+
 
