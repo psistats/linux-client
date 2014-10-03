@@ -1,6 +1,7 @@
 echo "---- LAYING AN EGG ----"
 
 cd $PROJECT_DIR
+rm -rf dist/
 python setup.py sdist
 RETCODE=$?
 

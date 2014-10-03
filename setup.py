@@ -9,7 +9,7 @@ setup(
     author_email="adow@psikon.com",
     license="MIT",
     packages=['psistats','psistats.app'],
-    data_files=[('/etc', ['etc/psistats.conf'])],
+    data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
     install_requires=[
         'pika>=0.9.14',
@@ -20,6 +20,5 @@ setup(
     ],
     scripts=[
         'bin/psistats',
-        'bin/psistats-service'
     ]
 )

@@ -17,9 +17,9 @@ import psutil
 import time
 import stat
 from daemon import runner
-from psistats.app import main
-from psistats import config
-import psistats
+#from psistats.app import main
+#from psistats import config
+#import psistats
 
 
 def out(msg):
@@ -39,6 +39,13 @@ def is_running(pidfile):
     except:
         return False
 
+
+def start_local():
+    out('[x] Starting Psistats service locally... ')
+
+    psistats = main.Main(config.get_config())
+    psistats.run()    
+    
 
 def start():
     out('[x] Starting Psistats service... ')
@@ -87,69 +94,29 @@ def status():
         print "not running"
 
 
-def install_config():
-    out("[x] Installing configuration ... ")
-    psistats_dir = os.path.dirname(psistats.__file__)
-
-    src_file = "%s/../config/psistats.conf" % psistats_dir
-    target_file = "/etc/psistats.conf"
-
-    try:
-        tf = open(target_file, 'w')
-        sf = open(src_file, 'r')
-
-        tf.write(sf.read())
-
-        tf.close()
-        sf.close()
-
-        out("ok!\n")
-        out("You can now configure Psistats by editing the file at %s\n" % target_file)
-
-    except IOError as e:
-        if e.errno == 13:
-            out("Failed: No Permission!\n")
-        else:
-            out("Failed: [%s] %s\n" % (e.errno, e.message))
-        sys.exit(1)
-
-
-def install_init():
-    out("[x] Installing init script ... ")
-
-    psistats_dir = os.path.dirname(psistats.__file__)
-
-    src_file = "%s/../scripts/psistats-service" % psistats_dir
-    target_file = "/etc/init.d/psistats"
-
-    try:
-        tf = open(target_file, 'w')
-        sf = open(src_file, 'r')
-        tf.write(sf.read())
-        tf.close()
-        sf.close()
-
-        os.chmod(target_file, stat.S_IEXEC | stat.S_IREAD)
-
-        out("ok!\n")
-        out("On some sytems, you may need to run the following command to complete the installation:\n")
-        out("update-rc.d psistats defaults\n")
-        out("\n")
-        out("This file will not be removed when you do pip uninstall psistats and needs to be removed manually\n")
-        out("You can now start psistats by running /etc/init.d/psistats start\n")
-        out("\n")
-
-    except IOError as e:
-        if e.errno == 13:
-            out("Failed: No Permission!\n")
-        else:
-            out("Failed! - %s" % e.message)
-        sys.exit(1)
 
 retval = 0
 
+#
+# Check if we are being called from an installation
+# or not. Probably not the best way to do this.
+#
+project_root = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
+setup_file = project_root + "/setup.py"
+psistats_folder = project_root + "/psistats"
+
+if (os.path.isfile(setup_file) and os.path.isdir(psistats_folder)):
+    sys.path.insert(0, project_root)
+
+print sys.path
+
+from psistats.app import main
+from psistats import config
+import psistats
+
+
 if len(sys.argv) != 2:
-    print "psitats [start|stop|restart|status|install-init]"
+    print "psitats [start|start-local|top|restart|status]"
     retval = 1
 elif sys.argv[1] == 'start':
     start()
@@ -160,12 +127,10 @@ elif sys.argv[1] == 'restart':
     start()
 elif sys.argv[1] == 'status':
     status()
-elif sys.argv[1] == 'install-init':
-    install_init()
-elif sys.argv[1] == 'install-config':
-    install_config()
+elif sys.argv[1] == 'start-local':
+    start_local()
 else:
-    print "psistats [start|stop|restart|status|install-init|install-config]"
+    print "psistats [start|start-local|stop|restart|status]"
     retval = 1
 
 sys.exit(retval)

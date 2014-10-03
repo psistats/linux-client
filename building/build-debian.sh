@@ -7,7 +7,8 @@ CONFIG=$DEBIAN_CFG_DIR/config/debian.cfg
 POSTINST_SCRIPT=$DEBIAN_CFG_DIR/postinst
 POSTRM_SCRIPT=$DEBIAN_CFG_DIR/postrm
 CONFFILES=$DEBIAN_CFG_DIR/conffiles
-DEBDIST_DIR=$PROJECT_DIR/deb_dist
+SRC_DIR=$PROJECT_DIR/dist
+DEBDIST_DIR=$SRC_DIR/$ARTIFACT_ID-$VERSION/deb_dist
 DEBIAN_DIR=$DEBDIST_DIR/$ARTIFACT_ID-$VERSION/debian
 
 echo "DEBIAN_CFG_DIR is $DEBIAN_CFG_DIR"
@@ -33,7 +34,16 @@ function execute_cmd {
 
 rm -rvf $DEBDIST_DIR
 
-cd $PROJECT_DIR
+cd $SRC_DIR
+
+execute_cmd "tar -xzvf $ARTIFACT_ID-$VERSION.tar.gz" \
+    '[ERROR] Was unable to extract source tarball'
+
+cd $ARTIFACT_ID-$VERSION
+
+#execute_cmd "sed -i '12s/.*/data_files=[\\(\\\'\\\/etc\\\', [\\\'etc\\\/psistats.conf\\\']\\)]/' setup.py" \
+#    '[ERROR] Was unable to fix setup.py'
+
 
 CMD="python setup.py --command-packages=stdeb.command sdist_dsc --extra-cfg-file=$CONFIG"
 
@@ -50,6 +60,8 @@ execute_cmd "cp -v $CONFFILES $DEBIAN_DIR" \
     "[ERROR] Was unable to copy $CONFFILES to $DEBIAN_DIR!"
 
 cd $DEBIAN_DIR/../
+# cp -r python-$ARTIFACT_ID/etc python-$ARTIFACT_ID/share/psistats 
+
 
 execute_cmd "dpkg-buildpackage -rfakeroot -uc -us" \
     "[ERROR] Was unable to build debian package!"
