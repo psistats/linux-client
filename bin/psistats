@@ -17,9 +17,6 @@ import psutil
 import time
 import stat
 from daemon import runner
-#from psistats.app import main
-#from psistats import config
-#import psistats
 
 
 def out(msg):
@@ -69,21 +66,26 @@ def start():
 def stop():
     out('[x] Stopping Psistats service... ')
     psistats = main.Main(config.get_config())
-    with open(psistats.pidfile_path) as f:
-        pid = int(f.read())
 
-        while True:
-            out('.')
-            try:
-                os.kill(pid, 9)
-            except OSError:
-                pass
+    if (os.path.isfile(psistats.pidfile_path)):
 
-            if psutil.pid_exists(pid):
-                time.sleep(1)
-            else:
-                break
-    out(" ok\n")
+        with open(psistats.pidfile_path) as f:
+            pid = int(f.read())
+
+            while True:
+                out('.')
+                try:
+                    os.kill(pid, 9)
+                except OSError:
+                    pass
+
+                if psutil.pid_exists(pid):
+                    time.sleep(1)
+                else:
+                    break
+        out(" ok\n")
+    else:
+        out(" ok\n")
 
 
 def status():
@@ -108,15 +110,13 @@ psistats_folder = project_root + "/psistats"
 if (os.path.isfile(setup_file) and os.path.isdir(psistats_folder)):
     sys.path.insert(0, project_root)
 
-print sys.path
-
 from psistats.app import main
 from psistats import config
 import psistats
 
 
 if len(sys.argv) != 2:
-    print "psitats [start|start-local|top|restart|status]"
+    print "psistats [start|start-local|top|restart|status]"
     retval = 1
 elif sys.argv[1] == 'start':
     start()
