@@ -1,4 +1,4 @@
 include README.md
 include VERSION
 include INSTALL
-include etc/psistats.conf
+include psistats.conf
