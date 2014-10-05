@@ -121,7 +121,4 @@ if (run_process(('dpkg-buildpackage', '-rfakeroot', '-uc', '-us')) == False):
 root.info("Copying %s to %s" % (DEB_FILE, DIST_DIR))
 shutil.copy(DEB_FILE, DIST_DIR)
 
-root.info("Cleaning up")
-shutil.rmtree(SRC_DIR)
-
 root.info("Success!")
