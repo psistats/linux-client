@@ -24,9 +24,6 @@ echo "DIR is '$DIR'"
 export PROJECT_DIR=$( readlink -f "$DIR/../" )
 
 
-export VERSION=$(cat VERSION)
-export ARTIFACT_ID=psistats
-
 echo "VERSION is '$VERSION'"
 echo "ARTIFACT_ID is '$ARTIFACT_ID'"
 echo "PROJECT_DIR id '$PROJECT_DIR'"
