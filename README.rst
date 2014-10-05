@@ -26,24 +26,34 @@ Uptime and IP Addresses are sent at a longer rate than cpu and memory however th
 CPU Temperature is enabled by default, but may not work on all systems.
 
 
-Installation
-------------
+Installation (From Source):
+---------------------------
 
-1) python setup.py install
-2) sudo psistats install-config
-3) sudo psistats install-init
-4) Edit /etc/psistats.conf to your liking.
-5) sudo psistats start
+# python setup.py install
+# edit psistats.conf to your liking
+# run psistats start
 
 
-Uninstallation
---------------
+Installation (Ubuntu 12.04 and higher):
+---------------------------------------
 
-1) pip uninstall psistats
-2) update-rc.d -f psistats remove (if necessary)
-3) rm /etc/init.d/psistats
-4) rm /etc/psistats.conf
-5) rm /usr/local/bin/psistats
+Psikon now has a Debian/Ubuntu repository to make installation easier. You can either choose stable or snapshot releases. For stable releases run the following commands:
+
+```
+$ wget http://debrepo.psikon.org/conf/debrepo.gpg.key
+$ sudo apt-key add debrepo.gpg.key
+$ sudo add-apt-repository 'deb http://debrepo.psikon.org/beta [distro] main'
+$ sudo apt-get update
+$ audo apt-get install psistats-client
+```
+
+Replace [distro] with your Ubuntu distribution name:
+
+* 12.04 - oneiric
+* 12.10 - precise
+* 13.04 - raring
+* 13.10 - saucy
+* 14.04 - trusty
 
 
 Changelog
@@ -53,6 +63,9 @@ v0.0.4
 - Removed ping feature
 - Message sending is now mandatory so if queue or exchange is removed, client will try to recreate the connection
 - More sensible default logging parameters, including exposing pika-related logging
+- Debian builds
+- Various code clean up
+- Removed the install-init / install-config feature
 
 v0.0.3
 - Added tools to create init script and configuration files in /etc
