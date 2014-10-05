@@ -45,7 +45,7 @@ cd $ARTIFACT_ID-$VERSION
 #    '[ERROR] Was unable to fix setup.py'
 
 
-CMD="python setup.py --command-packages=stdeb.command sdist_dsc --extra-cfg-file=$CONFIG --debian-version $BUILD_NUMBER"
+CMD="python setup.py --command-packages=stdeb.command sdist_dsc --extra-cfg-file=$CONFIG --debian-version $BUILD_NUMBER --package $ARTIFACT_ID"
 
 execute_cmd "$CMD" \
     '[ERROR] Was unable to call python setup.py to biuld debian source package!'
