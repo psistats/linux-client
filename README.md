@@ -34,9 +34,9 @@ You can either checkout the source from here, or you can download the source fro
 - Snapshots: http://repo.psikon.org/psistats/clients/linux/snapshot
 - Releases: http://repo.psikon.org/psistats/clients/linux/release
 
-# python setup.py install
-# edit psistats.conf to your liking
-# run psistats start
+1. python setup.py install
+2. edit psistats.conf to your liking
+3. run psistats start
 
 
 Installation (Ubuntu 12.04 and higher):
