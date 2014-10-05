@@ -40,7 +40,7 @@ You can either checkout the source from here, or you can download the source fro
 3. run psistats start
 
 
-Installation (Ubuntu 12.04 and higher):
+Installation (Ubuntu 12.04+ / RaspberryPi / Debian Wheezy):
 ---------------------------------------
 
 Psikon now has a Debian/Ubuntu repository to make installation easier. You can either choose stable or snapshot releases. For stable releases run the following commands:
@@ -53,13 +53,15 @@ $ sudo apt-get update
 $ audo apt-get install psistats-client
 ```
 
-Replace [distro] with your Ubuntu distribution name:
+Replace [distro] with your distrubtion name:
 
-* 12.04 - oneiric
-* 12.10 - precise
-* 13.04 - raring
-* 13.10 - saucy
-* 14.04 - trusty
+* Ubuntu 12.04 - oneiric
+* Ubuntu 12.10 - precise
+* Ubuntu 13.04 - raring
+* Ubuntu 13.10 - saucy
+* Ubuntu 14.04 - trusty
+* Raspbian - wheezy
+* Debian 7.0 - wheezy
 
 Configuration
 -------------
