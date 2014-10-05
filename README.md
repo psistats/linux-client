@@ -16,6 +16,7 @@ Format
     "cpu": 24.1,
     "mem": 34.1,
     "ipaddr": ['192.168.1.101','192.168.1.102']
+    "cpu_temp": 72.4
 }
 ```
 
@@ -23,7 +24,7 @@ Uptime is in seconds.
 
 Uptime and IP Addresses are sent at a longer rate than cpu and memory however that rate is configurable.
 
-CPU Temperature is enabled by default, but may not work on all systems.
+CPU Temperature is enabled by default, but may not work on all systems. It is reported in degrees celsius.
 
 
 Installation (From Source):
@@ -60,9 +61,126 @@ Replace [distro] with your Ubuntu distribution name:
 * 13.10 - saucy
 * 14.04 - trusty
 
+Configuration
+-------------
+
+###Queue Settings:
+
+```
+[queue]
+prefix=psistats
+exclusive=True
+durable=False
+autodelete=Yes
+ttl=10000
+```
+
+* **prefix:** The queue name will be [prefix].[hostname].
+* **exclusive:** Whether or not the queue can be used by other clients.
+* **durable:** Whether or not the queue will be recreated automatically upon server restart
+* **autodelete:** Whether or not the queue will be removed when there are no more clients using it
+* **ttl:** How long, in milliseconds, will messages remain in the queue
+
+###Exchange Settings:
+
+```
+[exchange]
+name=psistats
+type=topic
+durable=False
+autodelete=False
+```
+
+* **name:** The exchange name.
+* **type:** What kind of exchange it should be.
+* **durable:** Whether or not the exchange will be recreated automatically upon server restart
+* **autodelete:** Whether or not the exchange will be removed when there are no more clients using it
+
+###Server Settings:
+
+```
+[server]
+host=localhost
+port=5672
+path=/
+user=guest
+pass=guest
+```
+
+* **host:** Hostname or IP address of the RabbitMQ server
+* **port:** Port number of the RabbitMQ server
+* **path:** The virtualhost name
+* **user:** RabbitMQ Username
+* **pass:** Password
+
+###Application Settings
+
+```
+[app]
+timer=1
+retry_timer=5
+meta_timer=30
+pidfile=/var/run/psistats.pid
+pidfile_timeout=5
+stdin_path=/dev/null
+stdout_path=/dev/null
+stderr_path=/dev/null
+```
+
+* **timer:** The main timer, in seconds.
+* **meta_timer:** The secondary timer to broadcast IP and Uptime, in seconds
+* **retry_timer:** Timer, in seconds, to reconnect to RabbitMQ when the connection is lost
+* **pidfile:** Location of pidfile
+* **pidfile_timeout:** Pidfile lock timeout
+* **stdin_path:** Where to send stdin
+* **stdout_path:** Where to send stdout
+* **stderr_path:** Where to send stdrr
+
+###Misc Settings
+
+```
+[cpu_temp]
+enabled=1
+```
+* **enabled:** Whether or not enable CPU temperature reporting
+
+###Logging Configuration
+
+Logging configuration is the python standard. You can read more about it at https://docs.python.org/2/library/logging.config.html#configuration-dictionary-schema.
+
+Here is an example configuration that logs INFO level messages and above to a log file.
+
+```
+[logging]
+keys=root
+
+[handlers]
+keys=fileout
+
+[formatters]
+keys=form1
+
+[logger_root]
+level=info
+handlers=fileout
+propagate=0
+qualname=psistats
+
+[handler_fileout]
+class=logging.handlers.TimedRotatingFileHandler
+filename=psistats.log
+when=midnight
+level=DEBUG
+formatter=form1
+
+[formatter_form1]
+format=%(asctime)s %(name)s %(levelname)s %(message)s
+class=logging.Formatter
+```
 
 Changelog
 ---------
+
 v0.0.4
 - Added cpu temperature
 - Removed ping feature
