@@ -29,6 +29,11 @@ CPU Temperature is enabled by default, but may not work on all systems.
 Installation (From Source):
 ---------------------------
 
+You can either checkout the source from here, or you can download the source from Psikon's repository.
+
+- Snapshots: http://repo.psikon.org/psistats/clients/linux/snapshot
+- Releases: http://repo.psikon.org/psistats/clients/linux/release
+
 # python setup.py install
 # edit psistats.conf to your liking
 # run psistats start
