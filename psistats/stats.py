@@ -12,14 +12,15 @@ def cpu_temp_acpi_parser(input):
     return input.strip().lstrip('temperature :').rstrip('c')
 
 def cpu_temp_device_parser(input):
-    return input.strip().rstrip('000')
+    return float(input) / 1000.0
 
 cpu_temp_callbacks = {
     "/proc/acpi/thermal_zone/THM0/temperature": cpu_temp_acpi_parser,
     "/proc/acpi/thermal_zone/THRM/temperature": cpu_temp_acpi_parser,
     "/proc/acpi/thermal_zone/THR1/temperature": cpu_temp_acpi_parser,
     "/sys/devices/LNXSYSTM:00/LNXTHERM:00/LNXTHERM:01/thermal_zone/temp": cpu_temp_device_parser,
-    "/sys/bus/acpi/devices/LNXTHERM:00/thermal_zone/temp": cpu_temp_device_parser
+    "/sys/bus/acpi/devices/LNXTHERM:00/thermal_zone/temp": cpu_temp_device_parser,
+    "/sys/class/thermal/thermal_zone0/temp" : cpu_temp_device_parser
 }
 
 def cpu_temp():
