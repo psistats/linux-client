@@ -10,7 +10,7 @@ echo ' \/\::/  / \:\:\/__/ \::/\/__/ \;:;-",-" \:\/:/  / \/|::/  /'
 echo '    \/__/   \::/  /   \:\__\    |:|  |    \::/  /    |:/  / ' 
 echo '             \/__/     \/__/     \|__|     \/__/     \/__/  '
 
-ln -s /usr/bin/psistats-service /etc/init.d/psistats
+ln -s /usr/bin/psistats /etc/init.d/psistats
 ln -s /usr/share/psistats/psistats.conf /etc/psistats.conf
 update-rc.d psistats defaults
 
