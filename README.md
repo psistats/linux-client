@@ -1,5 +1,5 @@
-Psistats Linux Client v0.0.4-dev
-================================
+Psistats Linux Client
+=====================
 
 Python linux client that sends some computer statistics to a RabbitMQ
 server.
