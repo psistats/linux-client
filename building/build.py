@@ -106,6 +106,16 @@ if (run_process(sdist_cmd)) == False:
 
 
 root.info("Copying debian files to %s" % DEBIAN_DIR)
+
+DSC_FILE = DEBDIST_DIR + "/" + ARTIFACT_ID + "_" + VERSION + "-" + BUILD_NUMBER + ".dsc"
+
+with open(DSC_FILE) as f:
+    old_dsc = f.read()
+
+with open(DSC_FILE, "w") as f:
+    new_dsc = old_dsc.replace("python-all (>= 2.6.6-3)", "")
+    f.write(new_dsc)
+
 shutil.copy(POSTINST_SCRIPT, DEBIAN_DIR)
 shutil.copy(POSTRM_SCRIPT, DEBIAN_DIR)
 shutil.copy(CONFFILES, DEBIAN_DIR)
@@ -114,11 +124,33 @@ os.chdir(DEBIAN_DIR + "/../")
 
 # cp -r python-$ARTIFACT_ID/etc python-$ARTIFACT_ID/share/psistats
 
-if (run_process(('dpkg-buildpackage', '-rfakeroot', '-uc', '-us')) == False):
+
+if (run_process(('dpkg-buildpackage', '-rfakeroot', '-uc', '-us', '-d')) == False):
     root.fatal("Was not able to build debian binary package")
     sys.exit(1)
 
-root.info("Copying %s to %s" % (DEB_FILE, DIST_DIR))
-shutil.copy(DEB_FILE, DIST_DIR)
+root.info("Fixing dependencies in the deb file itself")
+os.mkdir(DIST_DIR + "/tmp")
+shutil.copy(DEB_FILE, DIST_DIR + "/tmp")
+
+if (run_process(('dpkg-deb', '-x', DIST_DIR + "/tmp/" + os.path.basename(DEB_FILE), DIST_DIR + "/tmp/extracted")) == False):
+    root.fatal("Was not able to extract debian package")
+    sys.exit(1)
+
+if (run_process(('dpkg-deb', '-e', DIST_DIR + "/tmp/" + os.path.basename(DEB_FILE), DIST_DIR + "/tmp/extracted/DEBIAN")) == False):
+    root.fatal("Was not able to extract metadata of debian package")
+    sys.exit(1)
+
+with open(DIST_DIR + "/tmp/extracted/DEBIAN/control") as f:
+    control = f.read()
+
+with open(DIST_DIR + "/tmp/extracted/DEBIAN/control", "w") as f:
+    f.write(control.replace("python:any (>= 2.7.1-0ubuntu2), ", ""))
+
+if (run_process(('dpkg-deb', '-b', DIST_DIR + "/tmp/extracted", DIST_DIR + "/" + os.path.basename(DEB_FILE))) == False):
+    root.fatal("Was not able to rebuild deb file")
+    sys.exit(1)
+
+# shutil.copy(DEB_FILE, DIST_DIR)
 
 root.info("Success!")
