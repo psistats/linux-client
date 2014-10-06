@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="psistats-client",
-    version="0.0.5",
+    version="0.0.6-dev",
     description="Psistats python client",
     url="http://psistats.psikon.org",
     author="Alex D",
