@@ -179,6 +179,9 @@ class=logging.Formatter
 
 Changelog
 ---------
+v0.0.11
+- Code improvements
+
 v0.0.10
 - Big version increase after testing automated release scripts
 - Normalized configuration between linux and windows clients
