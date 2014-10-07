@@ -29,8 +29,8 @@ Installation (From Source):
 
 You can either checkout the source from here, or you can download the source from Psikon's repository.
 
-- Snapshots: http://repo.psikon.org/psistats/clients/linux/snapshot
-- Releases: http://repo.psikon.org/psistats/clients/linux/release
+- Snapshots: http://repo.psikon.org/psistats/clients/linux/snapshots
+- Releases: http://repo.psikon.org/psistats/clients/linux/releases
 
 1. python setup.py install
 2. edit psistats.conf to your liking
