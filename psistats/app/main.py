@@ -87,7 +87,7 @@ class Main(object):
                 if self.connected == False:
                     self._init_connection()
                 self._primary_task()
-                if (secondary_timer == self.config['app']['secondary_timer']):
+                if secondary_timer == self.config['app']['secondary_timer']:
                     self._secondary_task()
                     secondary_timer = 1
                 else:
@@ -145,5 +145,5 @@ class Main(object):
             logger.exception(sys.exc_info()[1])
         finally:
             logger.warn("Shutting down")
-            if (self.connected == True):
+            if self.connected == True:
                 self.connection.close()

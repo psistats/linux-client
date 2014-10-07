@@ -25,7 +25,7 @@ cpu_temp_callbacks = {
 
 def cpu_temp():
     for key in cpu_temp_callbacks:
-        if (os.path.exists(key)):
+        if os.path.exists(key):
             return cpu_temp_callbacks[key](open(key).read())
     
 
@@ -51,7 +51,7 @@ def ip4_addresses():
             addrs = ifaddresses(interface)
             if AF_INET in addrs:
                 for link in addrs[AF_INET]:
-                    if (link['addr'] != '127.0.0.1'):
+                    if link['addr'] != '127.0.0.1':
                         ip_list.append(link['addr'])
     return ip_list
 
