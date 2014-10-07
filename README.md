@@ -179,6 +179,11 @@ class=logging.Formatter
 
 Changelog
 ---------
+v0.0.10
+- Big version increase after testing automated release scripts
+- Normalized configuration between linux and windows clients
+- Fixed bug with pika 0.9.5 (default on ubuntu 12.04 systems)
+- Some code clean up
 
 v0.0.4
 - Added cpu temperature
