@@ -116,9 +116,9 @@ pass=guest
 
 ```
 [app]
-timer=1
+primary_timer=1
+secondary_timer=30
 retry_timer=5
-meta_timer=30
 pidfile=/var/run/psistats.pid
 pidfile_timeout=5
 stdin_path=/dev/null
@@ -126,8 +126,8 @@ stdout_path=/dev/null
 stderr_path=/dev/null
 ```
 
-* **timer:** The main timer, in seconds.
-* **meta_timer:** The secondary timer to broadcast IP and Uptime, in seconds
+* **primary_timer:** The main timer, in seconds.
+* **secondary_timer:** The secondary timer to broadcast IP and Uptime, in seconds
 * **retry_timer:** Timer, in seconds, to reconnect to RabbitMQ when the connection is lost
 * **pidfile:** Location of pidfile
 * **pidfile_timeout:** Pidfile lock timeout

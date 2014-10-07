@@ -42,8 +42,8 @@ class Main(object):
         logger = self.get_logger()
         # used as a counter to determine interval to
         # send uptime and ip address updates
-        meta_refresh_counter = config['app']['meta_timer']
-        sleep = config['app']['timer']
+        secondary_timer = config['app']['secondary_timer']
+        primary_timer = config['app']['primary_timer']
 
         while True:
 
@@ -68,10 +68,10 @@ class Main(object):
                     'mem': stats.mem()
                 }
 
-                if meta_refresh_counter == config['app']['meta_timer']:
+                if secondary_timer == config['app']['secondary_timer']:
                     packet['ipaddr'] = stats.ip4_addresses()
                     packet['uptime'] = stats.uptime()
-                    meta_refresh_counter = 1
+                    secondary_timer = 1
 
                 if config['cpu_temp']['enabled']:
                     packet['cpu_temp'] = stats.cpu_temp()
@@ -80,9 +80,9 @@ class Main(object):
                 logger.debug('Sending packet: %s' % packet_json)
                 send_json(packet_json, self.channel, config['exchange']['name'], config['queue']['name'])
 
-                meta_refresh_counter += 1
+                secondary_timer += 1
 
-                time.sleep(sleep)
+                time.sleep(primary_timer)
 
             except (AMQPConnectionError, ChannelClosed, socket.error) as e:
                 logger.critical("Connection error with RabbitMQ!")
