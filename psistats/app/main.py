@@ -12,7 +12,8 @@ import simplejson as json
 from psistats.queue import get_connection, setup_queue, send_json, ping
 from pika.exceptions import AMQPConnectionError, ConnectionClosed, ChannelClosed
 from psistats.exceptions import MessageNotSent
-
+import socket
+import warnings
 
 class Main(object):
 
@@ -40,7 +41,11 @@ class Main(object):
         logger = self.get_logger()
         logger.info("Starting")
 
+        warnings.filterwarnings('error', '.*Write buffer exceeded warning threshold.*')
+
         hostname = stats.hostname()
+
+        
 
         config = self.config
 
@@ -97,18 +102,13 @@ class Main(object):
 
                     time.sleep(sleep)
 
-                except (AMQPConnectionError, ChannelClosed) as e:
+                except (AMQPConnectionError, ChannelClosed, socket.error) as e:
                     logger.critical("Connection error with RabbitMQ!")
                     logger.exception(e)
                     logger.debug('Retrying in %i seconds' % config['app']['retry_timer'])
-                    connected = False
-                    if connection != None and connection.is_closed == False:
-                        try:
-                            connection.close()
-                        except ConnectionClosed:
-                            pass
                     connection = None
-
+                    channel = None
+                    connected = False
                     time.sleep(config['app']['retry_timer'])
                 except AttributeError as e:
                     logger.exception(sys.exc_info()[1])
@@ -117,8 +117,14 @@ class Main(object):
                     channel = None
                     connected = False
                 except MessageNotSent as e:
-                    logger.exception(sys.exc_info()[1])
+                    logger.exception(e)
                     logger.error("MessageNotSent exception - this could be caused by RabbitMQ shutting down, or the queue being deleted. Resetting connection to be sure.")
+                    connection = None
+                    channel = None
+                    connected = False
+                except UserWarning as e:
+                    logger.exception(e)
+                    logger.error('UserWarning exception - this could be caused by a connection error with RabbitMQ. Resetting the connection to be sure.')
                     connection = None
                     channel = None
                     connected = False

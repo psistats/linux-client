@@ -12,7 +12,7 @@ setup(
     data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
     install_requires=[
-        'pika>=0.9.14',
+        'pika>=0.9.5',
         'python-daemon>=1.5.5',
         'simplejson>=3.6.3',
         'netifaces>=0.10.4',
