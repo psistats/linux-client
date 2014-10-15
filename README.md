@@ -45,7 +45,7 @@ Psikon now has a Debian/Ubuntu repository to make installation easier. You can e
 ```
 $ wget http://debrepo.psikon.org/conf/debrepo.gpg.key
 $ sudo apt-key add debrepo.gpg.key
-$ sudo add-apt-repository 'deb http://debrepo.psikon.org/beta [distro] main'
+$ sudo add-apt-repository 'deb http://debrepo.psikon.org [distro] main'
 $ sudo apt-get update
 $ audo apt-get install psistats-client
 ```
@@ -59,6 +59,8 @@ Replace [distro] with your distrubtion name:
 * Ubuntu 14.04 - trusty
 * Raspbian - wheezy
 * Debian 7.0 - wheezy
+
+For snapshot builds, use http://debrepo.psikon.org/beta
 
 Configuration
 -------------
