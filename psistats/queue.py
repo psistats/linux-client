@@ -45,25 +45,34 @@ def send_json(json, channel, exchange_name, queue_name):
 
 def setup_queue(channel, exchange_config, queue_config):
 
-    channel.exchange_declare(
-        exchange=exchange_config['name'],
-        type=exchange_config['type'],
-        durable=exchange_config['durable'],
-        auto_delete=exchange_config['autodelete']
-    )
+    try:
+        channel.exchange_declare(
+            exchange=exchange_config['name'],
+            type=exchange_config['type'],
+            durable=exchange_config['durable'],
+            auto_delete=exchange_config['autodelete']
+        )
+    except Exception as e:
+        raise exceptions.ExchangeException("Failed to declare exchange", e)
 
-    channel.queue_declare(
-        queue=queue_config['name'],
-        durable=queue_config['durable'],
-        exclusive=queue_config['exclusive'],
-        auto_delete=queue_config['autodelete'],
-        arguments={
-            'x-message-ttl': queue_config['ttl']
-        }
-    )
+    try:
+        channel.queue_declare(
+            queue=queue_config['name'],
+            durable=queue_config['durable'],
+            exclusive=queue_config['exclusive'],
+            auto_delete=queue_config['autodelete'],
+            arguments={
+                'x-message-ttl': queue_config['ttl']
+            }
+        )
+    except Exception as e:
+        raise exceptions.QueueException("Failed to declare queue", e)
 
-    channel.queue_bind(
-        queue=queue_config['name'],
-        exchange=exchange_config['name'],
-        routing_key=queue_config['name']
-    )
+    try:
+        channel.queue_bind(
+            queue=queue_config['name'],
+            exchange=exchange_config['name'],
+            routing_key=queue_config['name']
+        )
+    except Exception as e:
+        raise exceptions.QueueException("Failed to bind to queue", e)

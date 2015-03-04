@@ -19,3 +19,9 @@ class FileNotFoundException(PsistatsException):
 
 class MessageNotSentException(PsistatsException):
     pass
+
+class ExchangeException(PsistatsException):
+    pass
+
+class QueueException(PsistatsException):
+    pass

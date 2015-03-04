@@ -11,7 +11,7 @@ import sys
 import simplejson as json
 from psistats.queue import get_connection, setup_queue, send_json, ping
 from pika.exceptions import AMQPConnectionError, ConnectionClosed, ChannelClosed
-from psistats.exceptions import MessageNotSent
+from psistats.exceptions import MessageNotSentException, QueueConnectionException, QueueConfigException
 import socket
 import warnings
 
@@ -40,7 +40,7 @@ class Main(object):
     def _init_connection(self):
         self.logger.info("Creating connection")
         self.logger.debug("get connection")
-        self.connection = get_connection(self.config['server'])
+        self.connection = get_connection(self.config['server']['url'])
 
         self.logger.debug("get channel")
         self.channel = self.connection.channel()
@@ -107,7 +107,7 @@ class Main(object):
                 self.connection = None
                 self.channel = None
                 self.connected = False
-            except MessageNotSent as e:
+            except MessageNotSentException as e:
                 self.logger.exception(e)
                 self.logger.error("MessageNotSent exception - this could be caused by RabbitMQ shutting down, or the queue being deleted. Resetting connection to be sure.")
                 self.connection = None
