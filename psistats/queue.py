@@ -4,17 +4,21 @@ Created on Jun 21, 2014
 @author: v0idnull
 '''
 import pika
-from psistats.exceptions import MessageNotSent
+from psistats import exceptions
+from urlparse import urlparse
 
-def get_connection(config):
-    credentials = pika.PlainCredentials(config['user'], config['pass'])
+def get_connection(url):
 
-    connection = pika.BlockingConnection(pika.ConnectionParameters(
-        config['host'],
-        config['port'],
-        config['path'],
-        credentials
-    ))
+    try:
+        params = pika.URLParameters(url)
+    except Exception as e:
+        raise exceptions.QueueConfigException("Invalid URL: %s" % url, e)
+
+    print params    
+    try:
+        connection = pika.BlockingConnection(params)
+    except Exception as e:
+        raise exceptions.QueueConnectionException("Trouble connecting to the RabbitMQ server", e)
     return connection
 
 
@@ -36,7 +40,7 @@ def send_json(json, channel, exchange_name, queue_name):
     )
 
     if retval == False:
-        raise MessageNotSent("Message not sent, enable pika logging for more information")
+        raise exceptions.MessageNotSentException("Message not sent, enable pika logging for more information")
 
 
 def setup_queue(channel, exchange_config, queue_config):
