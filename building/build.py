@@ -50,7 +50,6 @@ root.info("Dist directory: " + DIST_DIR)
 
 
 root.info("Cleaning up")
-
 try:
     shutil.rmtree(DIST_DIR)
     shutil.rmtree(BUILD_DIR)
@@ -76,6 +75,14 @@ def run_process(args):
         return False
     return True
 
+
+if run_process(('python', 'setup.py', 'test')) == False:
+    root.fatal("Tests failed!")
+    sys.exit(1)
+
+if run_process(('python', 'setup.py', 'coverage', '--branch', '--erase')) == False:
+    root.fatal("Coverage reports failed!")
+    sys.exit(1)
 
 if run_process(('python', 'setup.py', 'sdist')) == False:
     root.fatal("Was not able to build source tarball")
