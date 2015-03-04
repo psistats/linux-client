@@ -35,7 +35,7 @@ cmd "python setup.py --command-packages=stdeb.command sdist_dsc --extra-cfg-file
 DEBDIST_DIR=$SRC_DIR/deb_dist
 DEBIAN_DIR=$DEBDIST_DIR/$ARTIFACT_ID-$VERSION/debian
 DEB_FILE=${ARTIFACT_ID}_${VERSION}-${BUILD_NUMBER}_all.deb
-cmd "sed -i -e 's/python-all (>= 2.6.6-3), //g' $DEBDIST_DIR/${ARTIFACT_ID}_${VERSION}-dev-${BUILD_NUMBER}.dsc"
+cmd "sed -i -e 's/python-all (>= 2.6.6-3), //g' $DEBDIST_DIR/${ARTIFACT_ID}_${VERSION}-${BUILD_NUMBER}.dsc"
 
 cmd "cp $DEBIAN_CFG_DIR/postinst $DEBIAN_DIR/postinst"
 cmd "cp $DEBIAN_CFG_DIR/postrm $DEBIAN_DIR/postrm"
