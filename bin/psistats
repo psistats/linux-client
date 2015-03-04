@@ -9,7 +9,7 @@
 # Description: Runs the Psistats reporting service
 ### END INIT INFO
 
-# Author: Alex Dowgailenko <v0idnull@psikon.com>
+# Author: Alex Dowgailenko <adow@psikon.com>
 
 import sys
 import os
@@ -18,14 +18,34 @@ import time
 import stat
 from daemon import runner
 
+#
+# Check if we are being called from an installation
+# or not. Probably not the best way to do this.
+#
+project_root = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
+setup_file = project_root + "/setup.py"
+psistats_folder = project_root + "/psistats"
+
+if (os.path.isfile(setup_file) and os.path.isdir(psistats_folder)):
+    sys.path.insert(0, project_root)
+
+from psistats.app import main
+from psistats import config
+import psistats
+
 
 def out(msg):
+    """
+    Ensure messages are printed to stdout immediate"
+    """
     sys.stdout.write(msg)
     sys.stdout.flush()
 
 
 def is_running(pidfile):
-
+    """
+    Check if pidfile is a valid process
+    """
     try:
         f = open(pidfile)
         pid = f.read()
@@ -38,6 +58,9 @@ def is_running(pidfile):
 
 
 def start_local():
+    """
+    Starts psistats in the current terminal
+    """
     out('[x] Starting Psistats service locally... ')
 
     psistats = main.Main(config.get_config())
@@ -45,6 +68,9 @@ def start_local():
     
 
 def start():
+    """
+    Starst psistats as a background service"
+    """
     out('[x] Starting Psistats service... ')
 
     psistats = main.Main(config.get_config())
@@ -62,8 +88,10 @@ def start():
         else:
             out("ok\n")
 
-
 def stop():
+    """
+    Stop psistats
+    """
     out('[x] Stopping Psistats service... ')
     psistats = main.Main(config.get_config())
 
@@ -83,12 +111,15 @@ def stop():
                     time.sleep(1)
                 else:
                     break
-        out(" ok\n")
+        out("ok\n")
     else:
-        out(" ok\n")
+        out("ok\n")
 
 
 def status():
+    """
+    Check if pidfile is a valid process"
+    """
     psistats = main.Main(config.get_config())
     if is_running(psistats.pidfile_path) == True:
         print "running"
@@ -96,24 +127,7 @@ def status():
         print "not running"
 
 
-
 retval = 0
-
-#
-# Check if we are being called from an installation
-# or not. Probably not the best way to do this.
-#
-project_root = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
-setup_file = project_root + "/setup.py"
-psistats_folder = project_root + "/psistats"
-
-if (os.path.isfile(setup_file) and os.path.isdir(psistats_folder)):
-    sys.path.insert(0, project_root)
-
-from psistats.app import main
-from psistats import config
-import psistats
-
 
 if len(sys.argv) != 2:
     print "psistats [start|start-local|top|restart|status]"
