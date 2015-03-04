@@ -1,5 +1,0 @@
-pika
-simplejson
-netifaces
-psutil
-python-daemon

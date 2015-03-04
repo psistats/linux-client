@@ -19,10 +19,9 @@ class CoverageAnalysis(distutils.cmd.Command):
     Code coverage analysis command.
     """
     PATH_PROJECT = os.path.abspath(os.path.dirname(__file__) + "/../..")
-    PATH_COVERAGE = os.path.abspath(os.path.dirname(__file__) + "/../../coverage")
     PATH_TESTS    = os.path.abspath(os.path.dirname(__file__) + "/../../tests")
-    PATH_ANNOTATED_TESTS = PATH_COVERAGE + "/annotations"
     PATH_REPORTS  = PATH_PROJECT + "/reports"
+    PATH_ANNOTATED_TESTS = PATH_REPORTS + "/annotations"
     PATH_HTML_REPORT = PATH_REPORTS + "/html"
     PATH_XML_REPORT = PATH_REPORTS + "/xml"
 
@@ -41,7 +40,10 @@ class CoverageAnalysis(distutils.cmd.Command):
         ('test-module=', 't', "explicitly specify a module to test (e.g. 'dendropy.test.test_containers')"),
         ('no-annotate', None, "do not create annotated source code files"),
         ('no-html', None, "do not create HTML report files"),
-        ('no-xml', None, "do not create XML report files")
+        ('no-xml', None, "do not create XML report files"),
+        ('html-dir=', None, "dir of HTML reports"),
+        ('xml-dir=', None, "dir of XML reports"),
+        ('annotations-dir=', None, "dir of annotated classes")
     ]
 
     def initialize_options(self):
@@ -54,6 +56,9 @@ class CoverageAnalysis(distutils.cmd.Command):
         self.no_annotate = False
         self.no_html = False
         self.no_xml = False
+        self.html_dir = self.PATH_HTML_REPORT
+        self.xml_dir = self.PATH_XML_REPORT
+        self.annotations_dir = self.PATH_ANNOTATED_TESTS
 
     def finalize_options(self):
         pass
@@ -65,15 +70,16 @@ class CoverageAnalysis(distutils.cmd.Command):
 
         if self.erase:
             try:
-                shutil.rmtree(self.PATH_COVERAGE)
+                shutil.rmtree(self.html_dir)
+                shutil.rmtree(self.xml_dir)
+                shutil.rmtree(self.annotation_dir)
             except:
                 pass
 
         try:
-            os.makedirs(self.PATH_COVERAGE)
-            os.makedirs(self.PATH_ANNOTATED_TESTS)
-            os.makedirs(self.PATH_HTML_REPORT)
-            os.makedirs(self.PATH_XML_REPORT)
+            os.makedirs(self.html_dir)
+            os.makedirs(self.xml_dir)
+            os.makedirs(self.annotation_dir)
         except:
             pass
 
@@ -91,17 +97,17 @@ class CoverageAnalysis(distutils.cmd.Command):
         if not self.no_annotate:
             cov.annotate(
                 omit=self.FILTERS,
-                directory=self.PATH_ANNOTATED_TESTS
+                directory=self.annotations_dir
             )
 
         if not self.no_html:
             cov.html_report(
                 omit=self.FILTERS,
-                directory=self.PATH_HTML_REPORT
+                directory=self.html_dir
             )
 
         if not self.no_xml:
             cov.xml_report(
                 omit=self.FILTERS,
-                outfile=self.PATH_XML_REPORT + "/coverage.xml"
+                outfile=self.xml_dir + "/coverage.xml"
             )
