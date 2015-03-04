@@ -18,10 +18,11 @@ class CoverageAnalysis(distutils.cmd.Command):
     """
     Code coverage analysis command.
     """
+    PATH_PROJECT = os.path.abspath(os.path.dirname(__file__) + "/../..")
     PATH_COVERAGE = os.path.abspath(os.path.dirname(__file__) + "/../../coverage")
     PATH_TESTS    = os.path.abspath(os.path.dirname(__file__) + "/../../tests")
     PATH_ANNOTATED_TESTS = PATH_COVERAGE + "/annotations"
-    PATH_REPORTS  = PATH_COVERAGE + "/reports"
+    PATH_REPORTS  = PATH_PROJECT + "/reports"
     PATH_HTML_REPORT = PATH_REPORTS + "/html"
     PATH_XML_REPORT = PATH_REPORTS + "/xml"
 
