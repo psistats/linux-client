@@ -3,7 +3,9 @@
 /build
 /dist
 /deb_dist
+/coverage
 /psistats.egg-info
 /psistats.log
 /psistats_client.egg-info
 /env.properties
+/psutil-2.2.1-py2.7-linux-x86_64.egg
