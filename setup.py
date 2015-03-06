@@ -9,7 +9,7 @@ setup(
     author="Alex D",
     author_email="adow@psikon.com",
     license="MIT",
-    packages=['psistats','psistats.app','psistats.testing'],
+    packages=['psistats','psistats.testing'],
     data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
     cmdclass = {

@@ -8,10 +8,10 @@ class PsistatsException(BaseException):
         super(PsistatsException, self).__init__(message)
         self.cause = cause
 
-class QueueConfigException(PsistatsException):
+class ConfigException(PsistatsException):
     pass
 
-class QueueConnectionException(PsistatsException):
+class ConnectionException(PsistatsException):
     pass
 
 class FileNotFoundException(PsistatsException):
