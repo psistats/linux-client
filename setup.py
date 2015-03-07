@@ -12,9 +12,6 @@ setup(
     packages=['psistats','psistats.testing'],
     data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
-    cmdclass = {
-        "coverage": psistats.testing.covreports.CoverageAnalysis
-    },
     test_suite="tests",
     tests_require=[
         'mock>=1.0.1',

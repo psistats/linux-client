@@ -95,10 +95,14 @@ class Queue():
         else:
             return False
 
+    def _msg_return_callback(self, method, header, frame):
+        raise exceptions.MessageNotSentException("Trouble in paradise yo")
+
     def _connect(self):
         try:
             self._connection = pika.BlockingConnection(self._params)
             self._channel = self._connection.channel()
+            self._channel.add_on_return_callback(self._msg_return_callback)
         except Exception as e:
             raise exceptions.ConnectionException("Trouble connecting to the RabbitMQ server", e)
 

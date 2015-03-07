@@ -13,3 +13,7 @@ class ExceptionTest(unittest.TestCase):
         e = exceptions.PsistatsException("first", "second")
         self.assertEquals(e.cause, "second")
         self.assertEquals(e.message, "first, caused by:\nfoobar")
+
+        e = exceptions.PsistatsException("first")
+        self.assertEquals(e.message, "first")
+
