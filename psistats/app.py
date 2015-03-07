@@ -27,6 +27,8 @@ class App():
         self.pidfile_timeout = config['app']['pidfile_timeout']
         self.queue = queue.Queue(config['server']['url'], config['queue'], config['exchange'])
 
+        self._running = False
+
         self._init_logger()
 
         self._connection = None
@@ -40,29 +42,24 @@ class App():
         self.logger = logger
 
     def _primary_task(self):
-        packet = {
-            'hostname': stats.hostname(),
-            'cpu': stats.cpu(),
-            'mem': stats.mem()
-        }
-        if self.config['cpu_temp']['enabled']:
-            packet['cpu_temp'] = stats.cpu_temp()        
-
-        packet_json = json.dumps(packet)
-        self.logger.debug('Sending packet: %s' % packet_json)
-        self.queue.send(packet_json)
+        self._send_packet(self.prepare_packet(('hostname','cpu','mem','cpu_temp')))
 
     def _secondary_task(self):
-        packet = {
-            'hostname': stats.hostname(),
-            'ipaddr': stats.ip4_addresses(),
-            'uptime': stats.uptime()
-        }
+        self._send_packet(self.prepare_packet(('hostname','ipaddr','uptime')))
 
+    def _send_packet(self, packet):
         packet_json = json.dumps(packet)
         self.logger.debug('Sending packet: %s' % packet_json)
         self.queue.send(packet_json)
 
+    def prepare_packet(self, keys):
+        packet = {}
+        
+        for key in keys:
+            statfunc = getattr(stats, key)
+            packet[key] = statfunc() if self.config[key]['enabled'] == True else None
+
+        return packet
 
     def _loop(self):
         # used as a counter to determine interval to
@@ -70,7 +67,7 @@ class App():
         secondary_timer = self.config['app']['secondary_timer']
         primary_timer = self.config['app']['primary_timer']
 
-        while True:
+        while self._running == True:
             try:
                 if self.queue.connected() == False:
                     self.queue.start()
@@ -93,27 +90,31 @@ class App():
             except QueueException as e:
                 self.logger.warn("Queue error")
                 self.logger.exception(e)
-                time.sleep(self.config['app']['retry_timer'])
+                self.queue.stop()
             except MessageNotSentException as e:
                 self.logger.warn("Unable to send message")
                 self.logger.exception(e)
+                self.queue.stop()
             except ExchangeException as e:
                 self.logger.exception(e)
-                self.logger.error('UserWarning exception - this could be caused by a connection error with RabbitMQ. Resetting the connection to be sure.')
+                self.logger.error('Exchange issue, this could be caused by a connection error with RabbitMQ. Resetting the connection to be sure.')
+                self.queue.stop()
                 
 
 
     def run(self):
         self.logger.info("Starting")
 
-        warnings.filterwarnings('error', '.*Write buffer exceeded warning threshold.*')
+#        warnings.filterwarnings('error', '.*Write buffer exceeded warning threshold.*')
 
         hostname = stats.hostname()
 
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
 
         try:
+            self._running = True
             self._loop()
+            self._running = False
         except KeyboardInterrupt:
             self.logger.warn("Received keyboard interrupt")
         except:
