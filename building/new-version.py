@@ -1,11 +1,7 @@
 import sys
 import os
 
-if "NEW_VERSION" not in os.environ:
-    print "[ERROR] Missing NEW_VERSION environment variable"
-    sys.exit(1)
-
-NEW_VERSION = os.environ["NEW_VERSION"]
+NEW_VERSION = sys.argv[1]
 
 PROJECT_DIR = os.path.realpath(os.path.dirname(__file__) + "/../")
 
