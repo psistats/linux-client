@@ -27,12 +27,13 @@ def cpu_temp():
     for key in cpu_temp_callbacks:
         if os.path.exists(key):
             return cpu_temp_callbacks[key](open(key).read())
-    
+    return None    
 
 def uptime():
     with open('/proc/uptime', 'r') as f:
         uptime_seconds = float(f.readline().split()[0])
         return uptime_seconds
+    return None
 
 
 def cpu(per_cpu=False):
@@ -44,7 +45,7 @@ def mem():
     return vm.percent
 
 
-def ip4_addresses():
+def ipaddr():
     ip_list = []
     for interface in interfaces():
         if interface not in ['virbr0']:
