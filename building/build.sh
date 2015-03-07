@@ -19,6 +19,10 @@ if [ ! -f $PYENV_DIR/bin/activate ]; then
 fi
 mkdir -p $COVERAGE_HTML_DIR
 mkdir -p $COVERAGE_XML_DIR
+
+VERSION=$( python setup.py --version )
+ARTIFACT_ID=$( python setup.py --name )
+
 cmd "source $PYENV_DIR/bin/activate"
 cmd "pip install coverage mock stdeb nose"
 cmd "python setup.py install"
@@ -43,9 +47,12 @@ cmd "cp -r $DEBIAN_CFG_DIR/conffiles $DEBIAN_DIR/conffiles"
 
 cd $DEBIAN_DIR/../
 cmd "dpkg-buildpackage -rfakeroot -uc -us -d"
-cmd "mkdir $TARGET_DIR/temp"
+cmd "mkdir -p $TARGET_DIR/temp"
 cmd "cp $DEBDIST_DIR/$DEB_FILE $TARGET_DIR/temp"
 cmd "dpkg-deb -x $TARGET_DIR/temp/$DEB_FILE $TARGET_DIR/temp/extracted"
 cmd "dpkg-deb -e $TARGET_DIR/temp/$DEB_FILE $TARGET_DIR/temp/extracted/DEBIAN"
 cmd "sed -i -e 's/python:any (>= 2.7.1-8ubuntu2), //g' $TARGET_DIR/temp/extracted/DEBIAN/control"
 cmd "dpkg-deb -b $TARGET_DIR/temp/extracted $DIST_DIR/$DEB_FILE"
+
+echo "---------------------"
+echo "Build finished!"

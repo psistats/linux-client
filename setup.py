@@ -1,5 +1,4 @@
 from setuptools import setup
-import psistats.testing.covreports
 
 setup(
     name="psistats-client",
@@ -9,7 +8,7 @@ setup(
     author="Alex D",
     author_email="adow@psikon.com",
     license="MIT",
-    packages=['psistats','psistats.testing'],
+    packages=['psistats'],
     data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
     test_suite="tests",
