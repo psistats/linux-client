@@ -46,14 +46,21 @@ def mem():
 
 
 def ipaddr():
+
     ip_list = []
+    def filter_ips(addrs):
+        if AF_INET in addrs:
+            for link in addrs[AF_INET]:
+                if link['addr'] != '127.0.0.1':
+                    ip_list.append(link['addr'])
+
+
     for interface in interfaces():
         if interface not in ['virbr0']:
+            
             addrs = ifaddresses(interface)
-            if AF_INET in addrs:
-                for link in addrs[AF_INET]:
-                    if link['addr'] != '127.0.0.1':
-                        ip_list.append(link['addr'])
+            filter_ips(addrs)
+
     return ip_list
 
 

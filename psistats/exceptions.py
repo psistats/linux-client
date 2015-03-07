@@ -2,7 +2,7 @@ import traceback
 
 class PsistatsException(BaseException):
     def __init__(self, message, cause=None):
-        if (cause != None):
+        if cause != None:
             message = message + ', caused by:' + "\n" + traceback.format_exc()
 
         super(PsistatsException, self).__init__(message)
