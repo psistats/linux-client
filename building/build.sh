@@ -17,7 +17,8 @@ if [ ! -f $PYENV_DIR/bin/activate ]; then
     cmd "rm -rfv $PYENV_DIR"
     cmd "virtualenv $PYENV_DIR"
 fi
-
+mkdir -p $COVERAGE_HTML_DIR
+mkdir -p $COVERAGE_XML_DIR
 cmd "source $PYENV_DIR/bin/activate"
 cmd "pip install coverage mock stdeb nose"
 cmd "python setup.py install"
