@@ -8,15 +8,16 @@
 ###############################################################################
 import os
 import platform
-from psistats.exceptions import FileNotFoundException
 import ConfigParser
+from psistats import exceptions
 
-config_file = "psistats.conf"
-
+CONF_FILE = "psistats.conf"
 
 class Config(object):
 
     def __init__(self, filename):
+        if os.path.isfile(filename) == False:
+            raise exceptions.FileNotFoundException(filename)
 
         rawconfig = ConfigParser.RawConfigParser()
         rawconfig.read(filename)
@@ -28,6 +29,8 @@ class Config(object):
 
         self._config = config
         self._config['logging'] = self._logging_config()
+
+        self.filename = filename
 
     def _process_section(self, section):
 
@@ -88,8 +91,11 @@ class Config(object):
         }
 
 
-def get_config():
-    return Config(filename=get_config_file())
+def get_config(config_file=None):
+    if config_file == None:
+        return Config(filename=get_config_file())
+    else:
+        return Config(filename=config_file)
 
 
 def get_config_file():
@@ -104,18 +110,18 @@ def get_config_file():
 
 def get_homedir_config_file():
     user_dir = os.path.expanduser("~")
-    return user_dir + '/.psistats/' + config_file
+    return user_dir + '/.psistats/' + CONF_FILE
 
 
 def get_linux_config_file():
 
     cwd = os.getcwd()
 
-    if os.path.isfile(cwd + "/" + config_file):
-        return cwd + "/" + config_file
+    if os.path.isfile(cwd + "/" + CONF_FILE):
+        return cwd + "/" + CONF_FILE
     elif os.path.isfile(get_homedir_config_file()):
         return get_homedir_config_file()
-    elif os.path.isfile("/etc/" + config_file):
-        return "/etc/" + config_file
+    elif os.path.isfile("/etc/" + CONF_FILE):
+        return "/etc/" + CONF_FILE
 
-    raise FileNotFoundException("No config file was found")
+    raise exceptions.FileNotFoundException("Unable to find configuration file %s" % CONF_FILE)
