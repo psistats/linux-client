@@ -101,18 +101,10 @@ autodelete=False
 
 ```
 [server]
-host=localhost
-port=5672
-path=/
-user=guest
-pass=guest
+url=amqp://guest:guest@localhost:5672/
 ```
 
-* **host:** Hostname or IP address of the RabbitMQ server
-* **port:** Port number of the RabbitMQ server
-* **path:** The virtualhost name
-* **user:** RabbitMQ Username
-* **pass:** Password
+* **url:** URL (using amqp for the scheme) for the RabbitMQ server
 
 ###Application Settings
 
@@ -142,8 +134,23 @@ stderr_path=/dev/null
 ```
 [cpu_temp]
 enabled=1
+
+[cpu]
+enabled=1
+
+[mem]
+enabled=1
+
+[ipaddr]
+enabled=1
+
+[uptime]
+enabled=1
+
+[hostname]
+enabled=1
 ```
-* **enabled:** Whether or not enable CPU temperature reporting
+* **enabled:** Turn on or off various parts of the information that's sent out
 
 ###Logging Configuration
 
@@ -181,6 +188,14 @@ class=logging.Formatter
 
 Changelog
 ---------
+v0.1.0
+- Refactored entirely the interaction between psistats and RabbitMQ
+- Enabled the ability to turn on or off any bit of information that is broadcasted
+- Reorganized configuration file with comments
+- Numerous code improvements
+- Unit tests
+- Better build scripts
+ 
 v0.0.11
 - Code improvements
 
