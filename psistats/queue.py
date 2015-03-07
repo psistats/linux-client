@@ -12,7 +12,7 @@ import pika
 from psistats import exceptions
 from urlparse import urlparse
 
-class Queue():
+class Queue(object):
     """A basic wrapper around pika
 
     Exposes only the functionlity needed by Psistats
