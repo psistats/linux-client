@@ -28,6 +28,7 @@ class Queue():
     """
 
     def __init__(self, url, queue_config, exchange_config):
+
         self.url = url
         self.queue_config = queue_config
         self.exchange_config = exchange_config
@@ -74,8 +75,8 @@ class Queue():
             retval = self._channel.basic_publish(
                 exchange=self.exchange_config['name'],
                 routing_key=self.queue_config['name'],
-                mandatory=True,
                 body=json,
+                mandatory=True,
                 properties=self._msg_properties
             )
 
@@ -95,14 +96,10 @@ class Queue():
         else:
             return False
 
-    def _msg_return_callback(self, method, header, frame):
-        raise exceptions.MessageNotSentException("Trouble in paradise yo")
-
     def _connect(self):
         try:
             self._connection = pika.BlockingConnection(self._params)
             self._channel = self._connection.channel()
-            self._channel.add_on_return_callback(self._msg_return_callback)
         except Exception as e:
             raise exceptions.ConnectionException("Trouble connecting to the RabbitMQ server", e)
 
@@ -143,14 +140,4 @@ class Queue():
             )
         except Exception as e:
             raise exceptions.QueueException("Failed to bind to queue", e)       
-
-
-
-
-
-def ping(config):
-    connection = get_connection(config)
-    channel = connection.channel()
-    connection.close()
-
 
