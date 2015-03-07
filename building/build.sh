@@ -21,9 +21,7 @@ fi
 cmd "source $PYENV_DIR/bin/activate"
 cmd "pip install coverage mock stdeb nose"
 cmd "python setup.py install"
-cmd "nosetests --verbose --with-coverage --cover-html --cover-html-dir=$COVERAGE_HTML_DIR --cover-package=psistats --cover-xml --cover-xml-dir=$COVERAGE_XML_DIR --with-xunit --xunit-file=$COVERAGE_DIR/xunit.xml -d"
-cmd "python setup.py test"
-cmd "python setup.py coverage --branch --erase --html-dir=$COVERAGE_HTML_DIR --xml-dir=$COVERAGE_XML_DIR --annotations-dir=$COVERAGE_ANNOTATIONS_DIR"
+cmd "nosetests --verbose --with-coverage --cover-html --cover-html-dir=$COVERAGE_HTML_DIR --cover-package=psistats --cover-xml --cover-xml-file=$COVERAGE_XML_DIR/coverage.xml --with-xunit --xunit-file=$COVERAGE_DIR/xunit.xml -d"
 cmd "python setup.py sdist --dist-dir=$DIST_DIR"
 
 cd $DIST_DIR
