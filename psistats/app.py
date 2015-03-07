@@ -10,11 +10,9 @@ import logging
 import logging.config as loggingconfig
 import sys
 import simplejson as json
-from psistats.exceptions import MessageNotSentException, ConnectionException, ConfigException, QueueException, ExchangeException
-import socket
-import warnings
+from psistats.exceptions import MessageNotSentException, ConnectionException, QueueException, ExchangeException
 
-class App():
+class App(object):
 
     def __init__(self, config):
         self.config = config
@@ -54,7 +52,7 @@ class App():
 
     def prepare_packet(self, keys):
         packet = {}
-        
+
         for key in keys:
             statfunc = getattr(stats, key)
             packet[key] = statfunc() if self.config[key]['enabled'] == True else None
@@ -99,13 +97,10 @@ class App():
                 self.logger.exception(e)
                 self.logger.error('Exchange issue, this could be caused by a connection error with RabbitMQ. Resetting the connection to be sure.')
                 self.queue.stop()
-                
 
 
     def run(self):
         self.logger.info("Starting")
-
-#        warnings.filterwarnings('error', '.*Write buffer exceeded warning threshold.*')
 
         hostname = stats.hostname()
 
