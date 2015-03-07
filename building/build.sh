@@ -23,6 +23,13 @@ mkdir -p $COVERAGE_XML_DIR
 VERSION=$( python setup.py --version )
 ARTIFACT_ID=$( python setup.py --name )
 
+cat << EOT > $TARGET_DIR/env.properties
+VERSION=$VERSION
+ARTIFACT_ID=$ARTIFACT_ID
+BUILD_NUMBER=$BUILD_NUMBER
+EOT
+ 
+
 cmd "source $PYENV_DIR/bin/activate"
 cmd "pip install coverage mock stdeb nose"
 cmd "python setup.py install"
