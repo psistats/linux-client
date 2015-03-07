@@ -75,4 +75,13 @@ class ConfigTest(unittest.TestCase):
         mock_os_isfile = mock.patch.object(config.os.path, 'isfile', side_effect=isfile_sideeffect)
         mock_os_isfile.start()
         self.assertEqual(config.get_linux_config_file(), "/etc/psistats.conf")
+        mock_os_isfile.stop()
+
+        """
+        get_linux_config_file should throw a FileNotFoundException when it can't find a file
+        """
+        mock_os_isfile = mock.patch.object(config.os.path, 'isfile', return_value=False)
+        mock_os_isfile.start()
+        self.assertRaises(FileNotFoundException, config.get_linux_config_file)
+        mock_os_isfile.stop()
 
