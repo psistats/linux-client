@@ -40,15 +40,14 @@ fi
 
 echo "Building $NEW_VERSION"
 
-cmd "git checkout -b \"v$NEW_VERSION\""
-
+cmd "git checkout -b v$NEW_VERSION"
 cmd "python building/new-version.py $NEW_VERSION"
-
 cmd "git commit sonar-project.properties setup.py VERSION -m \"Changing version from $VERSION to $NEW_VERSION\""
-
 cmd "building/build.sh"
+cmd "git push -u origin v$NEW_VERSION"
 
 cmd "git checkout master"
+cmd "git pull"
 
 IFS="." read -ra VERS <<< $NEW_VERSION
 (( VERS[2]++ ))
@@ -63,6 +62,6 @@ cmd "python building/new-version.py $NEW_DEV_VERSION"
 cmd "git commit sonar-project.properties setup.py VERSION -m \"Changing version from $VERSION to $NEW_DEV_VERSION\""
 cmd "git push"
 cmd "git checkout v$NEW_VERSION"
+cmd "git pull"
 cmd "git tag -a $NEW_VERSION -m 'Tagging new release version'"
-cmd "git push -u origin v$NEW_VERSION"
-cmd "git push --tags"
+cmd "git push --tags origin"
