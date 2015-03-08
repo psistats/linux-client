@@ -4,6 +4,14 @@ source $PATH_SELF/variables.sh
 
 cd $PROJECT_DIR
 
+cmd () {
+    echo "[RUN] $1"
+    eval $1
+    if [ $? -ne 0 ]; then
+        exit $?
+    fi
+}
+
 VERSION=$( python setup.py --version )
 ARTIFACT_ID=$( python setup.py --name )
 
@@ -32,15 +40,15 @@ fi
 
 echo "Building $NEW_VERSION"
 
-git checkout -b "v$NEW_VERSION"
+cmd "git checkout -b \"v$NEW_VERSION\""
 
-python building/new-version.py $NEW_VERSION
+cmd "python building/new-version.py $NEW_VERSION"
 
-git commit sonar-project.properties setup.py VERSION -m "Changing version from $VERSION to $NEW_VERSION"
+cmd "git commit sonar-project.properties setup.py VERSION -m \"Changing version from $VERSION to $NEW_VERSION\""
 
-building/build.sh
+cmd "building/build.sh"
 
-git checkout master
+cmd "git checkout master"
 
 IFS="." read -ra VERS <<< $NEW_VERSION
 (( VERS[2]++ ))
@@ -50,10 +58,9 @@ NEW_DEV_VERSION=$NEW_DEV_VERSION-dev
 
 echo "Creating new dev version: $NEW_DEV_VERSION"
 
-python building/new-version.py $NEW_DEV_VERSION
+cmd "python building/new-version.py $NEW_DEV_VERSION"
 
-git commit sonar-project.properties setup.py VERSION -m "Changing version from $VERSION to $NEW_DEV_VERSION"
-git push
-git checkout v$NEW_VERSION
-git push -u origin v$NEW_VERSION
-
+cmd "git commit sonar-project.properties setup.py VERSION -m \"Changing version from $VERSION to $NEW_DEV_VERSION\""
+cmd "git push"
+cmd "git checkout v$NEW_VERSION"
+cmd "git push -u origin v$NEW_VERSION"
