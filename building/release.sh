@@ -53,6 +53,7 @@ echo "Creating new dev version: $NEW_DEV_VERSION"
 python building/new-version.py $NEW_DEV_VERSION
 
 git commit sonar-project.properties setup.py VERSION -m "Changing version from $VERSION to $NEW_DEV_VERSION"
-
+git push
 git checkout v$NEW_VERSION
+git push -u origin v$NEW_VERSION
 
