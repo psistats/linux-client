@@ -17,6 +17,7 @@ class CleanCmd(Command):
     user_options = []
 
     cleanDirs = [
+        '.cache',
         '.eggs',
         'build',
         'dist',
@@ -24,7 +25,8 @@ class CleanCmd(Command):
         '3rdparty/sensors/build',
         '3rdparty/sensors/dist',
         '3rdparty/sensors/PySensors.egg-info',
-        '.coverage'
+        '.coverage',
+        'tests/__pycache__'
     ]
 
     def initialize_options(self):
@@ -49,6 +51,7 @@ class CleanCmd(Command):
             for filename in fnmatch.filter(filenames, '*.pyc'):
                 pycFile = os.path.join(root, filename)
                 print('Deleting %s' % pycFile)
+                os.remove(pycFile)
 
 
 
@@ -90,6 +93,19 @@ class develop(_develop):
         _develop.run(self)
         self.execute(install_3rdparties, [], msg="INSTALLING 3rd PARTIES")
 
+class coverage(Command):
+    description = "Create coverage reports"
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        subprocess.call(['py.test','--cov','psistats','tests/'])
+
 
 setup(
     name="psistats-client",
@@ -104,6 +120,7 @@ setup(
     zip_safe=False,
     test_suite="tests",
     tests_require=[
+        'pytest',
         'mock',
         'coverage'
     ],
@@ -121,11 +138,12 @@ setup(
     cmdclass={
         'install': install,
         'develop': develop,
-        'clean': CleanCmd
+        'clean': CleanCmd,
+        'coverage': coverage
+    },
+    entry_points={
+        'distutils.commands': [
+            'coverage = coverage'
+        ]
     }
-#    entry_points={
-#        'distutils.commands': [
-#            'clean = cleanCmd'
-#        ]
-#    }
 )
