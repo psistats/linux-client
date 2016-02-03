@@ -13,3 +13,4 @@ psutil-2.2.1-py2.7-linux-x86_64.egg
 **/*.swp
 target
 .coverage
+env
