@@ -27,11 +27,6 @@ CPU Temperature is enabled by default, but may not work on all systems. It is re
 Installation (From Source):
 ---------------------------
 
-You can either checkout the source from here, or you can download the source from Psikon's repository.
-
-- Snapshots: http://repo.psikon.org/psistats/clients/linux/snapshots
-- Releases: http://repo.psikon.org/psistats/clients/linux/releases
-
 1. python setup.py install
 2. edit psistats.conf to your liking
 3. run psistats start
@@ -39,6 +34,8 @@ You can either checkout the source from here, or you can download the source fro
 
 Installation (Ubuntu 12.04+ / RaspberryPi / Debian Wheezy):
 ---------------------------------------
+
+WARNING: The debian repo is currently inactive. A PPA will be available soon.
 
 Psikon now has a Debian/Ubuntu repository to make installation easier. You can either choose stable or snapshot releases. For stable releases run the following commands:
 
@@ -59,6 +56,12 @@ Replace [distro] with your distrubtion name:
 * Ubuntu 14.04 - trusty
 * Raspbian - wheezy
 * Debian 7.0 - wheezy
+
+NOTE: For Ubunbut v13.10 and lower, you must upgrade the pika python library:
+
+```
+$ sudo pip install --upgrade pika
+```
 
 For snapshot builds, use http://debrepo.psikon.org/beta
 

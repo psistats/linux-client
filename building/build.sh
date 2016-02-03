@@ -11,6 +11,7 @@ cmd () {
     fi
 }
 
+echo Project Root: $PROJECT_DIR
 cd $PROJECT_DIR
 
 if [ ! -f $PYENV_DIR/bin/activate ]; then

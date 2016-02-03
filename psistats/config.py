@@ -9,7 +9,7 @@
 import os
 import platform
 import ConfigParser
-from psistats import exceptions
+from psistats.exceptions import *
 
 CONF_FILE = "psistats.conf"
 
@@ -17,7 +17,7 @@ class Config(object):
 
     def __init__(self, filename):
         if os.path.isfile(filename) == False:
-            raise exceptions.FileNotFoundException(filename)
+            raise FileNotFoundException(filename)
 
         rawconfig = ConfigParser.RawConfigParser()
         rawconfig.read(filename)
@@ -44,14 +44,25 @@ class Config(object):
             elif val.isdigit() == True:
                 val = int(val)
 
+            if key.endswith('[]'):
+                key = key[:-2]
+                val = map(lambda x: x.strip(), val.split('\n'))
+                
             d[key] = val
 
         return d
 
     def __getitem__(self, name):
-        return self._config[name]
+        if name in self._config:
+            return self._config[name]
+        else:
+            raise KeyError(name)
+
+    def __contains__(self, name):
+        return name in self._config
 
     def _logging_config(self):
+        print self._config
         log_keys = self['logging']
         hand_keys = self['handlers']
         form_keys = self['formatters']
@@ -105,7 +116,7 @@ def get_config_file():
     if system == "Linux":
         return get_linux_config_file()
     else:
-        raise RuntimeError("System not supported")
+        raise PsistatsException("System not supported: %s" % system)
 
 
 def get_homedir_config_file():
@@ -124,4 +135,4 @@ def get_linux_config_file():
     elif os.path.isfile("/etc/" + CONF_FILE):
         return "/etc/" + CONF_FILE
 
-    raise exceptions.FileNotFoundException("Unable to find configuration file %s" % CONF_FILE)
+    raise FileNotFoundException("Unable to find configuration file %s" % CONF_FILE)

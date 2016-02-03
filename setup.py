@@ -7,6 +7,7 @@ import sys
 import os
 import inspect
 import shutil
+import fnmatch
 
 class CleanCmd(Command):
 
@@ -19,7 +20,11 @@ class CleanCmd(Command):
         '.eggs',
         'build',
         'dist',
-        'psistats_client.egg-info'
+        'psistats_client.egg-info',
+        '3rdparty/sensors/build',
+        '3rdparty/sensors/dist',
+        '3rdparty/sensors/PySensors.egg-info',
+        '.coverage'
     ]
 
     def initialize_options(self):
@@ -33,9 +38,20 @@ class CleanCmd(Command):
         for dirName in self.cleanDirs:
             print( 'Deleting %s' % dirName)
             try:
-                shutil.rmtree(dirName)
+                if os.path.isfile(dirName):
+                    os.remove(dirName)
+                else:
+                    shutil.rmtree(dirName)
             except OSError:
                 pass
+        print('Cleaning pyc files')
+        for root, dirname, filenames in os.walk('.'):
+            for filename in fnmatch.filter(filenames, '*.pyc'):
+                pycFile = os.path.join(root, filename)
+                print('Deleting %s' % pycFile)
+
+
+
 
 def install_3rdparties():
 

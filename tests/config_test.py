@@ -2,6 +2,7 @@ import unittest
 import os
 import mock
 from psistats import config
+from psistats.exceptions import PsistatsException
 from psistats.exceptions import FileNotFoundException
 import platform
 import shutil
@@ -25,7 +26,7 @@ class ConfigTest(unittest.TestCase):
 
         mocker = mock.patch.object(config.platform, 'system', return_value='foobar')
         mocker.start()
-        self.assertRaises(RuntimeError, config.get_config)
+        self.assertRaises(PsistatsException, config.get_config)
         mocker.stop()
 
     @mock.patch.object(config.os.path, 'expanduser', return_value = "HOME")

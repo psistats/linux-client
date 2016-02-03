@@ -86,6 +86,8 @@ class Queue(object):
             raise exceptions.ConnectionException("Connection error", e)
 
     def connected(self):
+        """Returns true if the connection is open, false otherwise"""
+
         if self._connection:
             if self._connection.is_closed == True:
                 return False

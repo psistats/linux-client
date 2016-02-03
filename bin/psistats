@@ -17,6 +17,7 @@ import psutil
 import time
 import stat
 from daemon import runner
+import sensors
 
 #
 # Check if we are being called from an installation
@@ -61,7 +62,6 @@ def start_local():
     Starts psistats in the current terminal
     """
     out('[x] Starting Psistats service locally... ')
-
     psistats = app.App(config.get_config())
     psistats.run()    
     
@@ -71,7 +71,6 @@ def start():
     Starst psistats as a background service"
     """
     out('[x] Starting Psistats service... ')
-
     psistats = app.App(config.get_config())
 
     if is_running(psistats.pidfile_path) == True:
@@ -125,11 +124,33 @@ def status():
     else:
         print "not running"
 
+def list_sensors():
+    """
+    List available sensors in a config file format
+    """
+    sensors.init()
+
+    try:
+        for chip in sensors.iter_detected_chips():
+            confKey = str(chip)
+
+            unit = ''
+
+            for feature in chip:
+                if feature.type == sensors.SENSORS_FEATURE_FAN:
+                    unit = 'RPM'
+                elif feature.type == sensors.SENSORS_FEATURE_TEMP:
+                    unit = '*C'
+                
+                print '%s.%s  (%s %s)' % (confKey, feature.label, feature.get_value(), unit)
+    finally:
+        sensors.cleanup()
+
 
 retval = 0
 
 if len(sys.argv) != 2:
-    print "psistats [start|start-local|top|restart|status]"
+    print "psistats [start|start-local|top|restart|status|sensors]"
     retval = 1
 elif sys.argv[1] == 'start':
     start()
@@ -142,8 +163,10 @@ elif sys.argv[1] == 'status':
     status()
 elif sys.argv[1] == 'start-local':
     start_local()
+elif sys.argv[1] == 'sensors':
+    list_sensors()
 else:
-    print "psistats [start|start-local|stop|restart|status]"
+    print "psistats [start|start-local|stop|restart|status|sensors]"
     retval = 1
 
 sys.exit(retval)
