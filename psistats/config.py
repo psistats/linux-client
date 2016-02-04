@@ -8,8 +8,12 @@
 ###############################################################################
 import os
 import platform
-import ConfigParser
 from psistats.exceptions import *
+
+try:
+    import ConfigParser as configparser
+except ImportError:
+    import configparser
 
 CONF_FILE = "psistats.conf"
 
@@ -19,7 +23,7 @@ class Config(object):
         if os.path.isfile(filename) == False:
             raise FileNotFoundException(filename)
 
-        rawconfig = ConfigParser.RawConfigParser()
+        rawconfig = configparser.RawConfigParser()
         rawconfig.read(filename)
 
         config = {}
@@ -62,7 +66,6 @@ class Config(object):
         return name in self._config
 
     def _logging_config(self):
-        print self._config
         log_keys = self['logging']
         hand_keys = self['handlers']
         form_keys = self['formatters']

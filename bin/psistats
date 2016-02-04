@@ -120,9 +120,9 @@ def status():
     """
     psistats = app.App(config.get_config())
     if is_running(psistats.pidfile_path) == True:
-        print "running"
+        sys.stdout.write("running\n")
     else:
-        print "not running"
+        sys.stdout.write("not running\n")
 
 def list_sensors():
     """
@@ -142,7 +142,7 @@ def list_sensors():
                 elif feature.type == sensors.SENSORS_FEATURE_TEMP:
                     unit = '*C'
                 
-                print '%s.%s  (%s %s)' % (confKey, feature.label, feature.get_value(), unit)
+                sys.stdout.write('%s.%s  (%s %s)\n' % (confKey, feature.label, feature.get_value(), unit))
     finally:
         sensors.cleanup()
 
@@ -150,7 +150,7 @@ def list_sensors():
 retval = 0
 
 if len(sys.argv) != 2:
-    print "psistats [start|start-local|top|restart|status|sensors]"
+    sys.stdout.write("psistats [start|start-local|top|restart|status|sensors]\n")
     retval = 1
 elif sys.argv[1] == 'start':
     start()
@@ -166,7 +166,7 @@ elif sys.argv[1] == 'start-local':
 elif sys.argv[1] == 'sensors':
     list_sensors()
 else:
-    print "psistats [start|start-local|stop|restart|status|sensors]"
+    sys.stdout.write("psistats [start|start-local|stop|restart|status|sensors]\n")
     retval = 1
 
 sys.exit(retval)

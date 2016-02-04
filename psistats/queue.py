@@ -10,7 +10,11 @@ Wrapper around pika
 
 import pika
 from psistats import exceptions
-from urlparse import urlparse
+
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 class Queue(object):
     """A basic wrapper around pika
