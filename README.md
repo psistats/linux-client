@@ -35,35 +35,10 @@ Installation (From Source):
 Installation (Ubuntu 12.04+ / RaspberryPi / Debian Wheezy):
 ---------------------------------------
 
-WARNING: The debian repo is currently inactive. A PPA will be available soon.
+WARNING: Debian packages are currently unavailable.
 
-Psikon now has a Debian/Ubuntu repository to make installation easier. You can either choose stable or snapshot releases. For stable releases run the following commands:
+Currently you can install from source, then link /usr/bin/psistats to /etc/init.d/psistats to have psistats start on boot.
 
-```
-$ wget http://debrepo.psikon.org/conf/debrepo.gpg.key
-$ sudo apt-key add debrepo.gpg.key
-$ sudo add-apt-repository 'deb http://debrepo.psikon.org [distro] main'
-$ sudo apt-get update
-$ audo apt-get install psistats-client
-```
-
-Replace [distro] with your distrubtion name:
-
-* Ubuntu 12.04 - oneiric
-* Ubuntu 12.10 - precise
-* Ubuntu 13.04 - raring
-* Ubuntu 13.10 - saucy
-* Ubuntu 14.04 - trusty
-* Raspbian - wheezy
-* Debian 7.0 - wheezy
-
-NOTE: For Ubunbut v13.10 and lower, you must upgrade the pika python library:
-
-```
-$ sudo pip install --upgrade pika
-```
-
-For snapshot builds, use http://debrepo.psikon.org/beta
 
 Configuration
 -------------
@@ -113,8 +88,6 @@ url=amqp://guest:guest@localhost:5672/
 
 ```
 [app]
-primary_timer=1
-secondary_timer=30
 retry_timer=5
 pidfile=/var/run/psistats.pid
 pidfile_timeout=5
@@ -123,8 +96,6 @@ stdout_path=/dev/null
 stderr_path=/dev/null
 ```
 
-* **primary_timer:** The main timer, in seconds.
-* **secondary_timer:** The secondary timer to broadcast IP and Uptime, in seconds
 * **retry_timer:** Timer, in seconds, to reconnect to RabbitMQ when the connection is lost
 * **pidfile:** Location of pidfile
 * **pidfile_timeout:** Pidfile lock timeout
@@ -132,28 +103,25 @@ stderr_path=/dev/null
 * **stdout_path:** Where to send stdout
 * **stderr_path:** Where to send stdrr
 
-###Misc Settings
+###Reporters
+
+Various reporters are available from psistats, but some have additional dependencies that you will have to install separately.
+
+#### Sensors
+
+The `hddtemp` reporter reports the temperatures of all your drives (if supported) and requires https://wiki.archlinux.org/index.php/Hddtemp to be installed as well as have the daemon running.
+
+The `sensors` reporter can report any value from any available sensor and requires libsensors to be installed.
+
+Debian users can just do this:
 
 ```
-[cpu_temp]
-enabled=1
-
-[cpu]
-enabled=1
-
-[mem]
-enabled=1
-
-[ipaddr]
-enabled=1
-
-[uptime]
-enabled=1
-
-[hostname]
-enabled=1
+sudo apt-get install hddtemp libsensors4
 ```
-* **enabled:** Turn on or off various parts of the information that's sent out
+
+#### Other Reporters
+
+For more information, refer to the psistats.conf file.
 
 ###Logging Configuration
 
@@ -191,6 +159,11 @@ class=logging.Formatter
 
 Changelog
 ---------
+v0.2.0
+- New multithreaded architecture
+- Can interface with hddtemp and libsensors
+- Can control timer for any reporter
+- Various code improvements
 v0.1.0
 - Refactored entirely the interaction between psistats and RabbitMQ
 - Enabled the ability to turn on or off any bit of information that is broadcasted
