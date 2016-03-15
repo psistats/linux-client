@@ -4,30 +4,86 @@ Created on Jun 21, 2014
 @author: v0idnull
 '''
 import psutil
-from netifaces import interfaces, ifaddresses, AF_INET
+# from netifaces import interfaces, ifaddresses, AF_INET
 import socket
 import os
+from psistats.sensors import sensors as libsensors
 
-def cpu_temp_acpi_parser(input):
-    return input.strip().lstrip('temperature :').rstrip('c')
+def sensors(sensorList):
+    libsensors.init()
 
-def cpu_temp_device_parser(input):
-    return float(input) / 1000.0
+    devices = {}
 
-cpu_temp_callbacks = {
-    "/proc/acpi/thermal_zone/THM0/temperature": cpu_temp_acpi_parser,
-    "/proc/acpi/thermal_zone/THRM/temperature": cpu_temp_acpi_parser,
-    "/proc/acpi/thermal_zone/THR1/temperature": cpu_temp_acpi_parser,
-    "/sys/devices/LNXSYSTM:00/LNXTHERM:00/LNXTHERM:01/thermal_zone/temp": cpu_temp_device_parser,
-    "/sys/bus/acpi/devices/LNXTHERM:00/thermal_zone/temp": cpu_temp_device_parser,
-    "/sys/class/thermal/thermal_zone0/temp" : cpu_temp_device_parser
-}
+    deviceFilter = {}
 
-def cpu_temp():
-    for key in cpu_temp_callbacks:
-        if os.path.exists(key):
-            return cpu_temp_callbacks[key](open(key).read())
-    return None    
+    for device in sensorList:
+
+        if device.startswith('('):
+            parts = device.split(',')
+            label = ','.join(parts[:-1]).strip()[1:]
+            device = parts[-1:][0][:-1].strip()
+        else:
+            label = device
+
+        devices[label] = {
+            'value': None,
+            'unit': None
+        }
+
+        chipName,feature = device.split('.')
+
+        if chipName not in deviceFilter:
+            deviceFilter[chipName] = {}
+
+        deviceFilter[chipName][feature] = label
+
+    for chipName in deviceFilter.iterkeys():
+        for chip in libsensors.iter_detected_chips(chip_name=chipName):
+            for feature in chip:
+                if feature.label in deviceFilter[chipName]:
+                    unit = None
+                    if feature.type == libsensors.SENSORS_FEATURE_FAN:
+                        unit = 'RPM'
+                    elif feature.type == libsensors.SENSORS_FEATURE_TEMP:
+                        unit = 'C'
+
+                    devices[deviceFilter[chipName][feature.label]]['value'] = feature.get_value()
+                    devices[deviceFilter[chipName][feature.label]]['unit'] = unit
+
+    libsensors.cleanup()
+
+    return devices
+
+def hddspace(device):
+    return psutil.disk_usage(device).percent
+
+def hdds():
+    disks = []
+    for partition in psutil.disk_partitions():
+        disks.append(partition.mountpoint)
+
+    return disks
+
+def hddtemps(ip, port):
+    s = socket.socket()
+    s.connect((ip, port))
+    buf = s.recv(2048)
+
+    hddtemps = {}
+    
+    buf = buf[1:]
+    
+    devices = buf.split('||')
+    for device in devices:
+        parts = device.split('|')
+
+        hddtemps[parts[0]] = {
+            'value': parts[2],
+            'unit': parts[3]
+        }
+
+    return hddtemps
+
 
 def uptime():
     with open('/proc/uptime', 'r') as f:
@@ -47,21 +103,15 @@ def mem():
 
 def ipaddr():
 
-    ip_list = []
-    def filter_ips(addrs):
-        if AF_INET in addrs:
-            for link in addrs[AF_INET]:
-                if link['addr'] != '127.0.0.1':
-                    ip_list.append(link['addr'])
+    ifaces = psutil.net_if_addrs()
+    ipaddrs = {}
 
-
-    for interface in interfaces():
-        if interface not in ['virbr0']:
-            
-            addrs = ifaddresses(interface)
-            filter_ips(addrs)
-
-    return ip_list
+    for interface in ifaces.iterkeys():
+        if interface != "lo":
+            for addr in ifaces[interface]:
+                if addr.family == 2:
+                    ipaddrs[interface] = addr.address
+    return ipaddrs
 
 
 def hostname():

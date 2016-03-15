@@ -55,18 +55,17 @@ setup(
         'pytest'
     ],
     tests_require=[
-        'pytest',
+        'pytest==2.9.0',
         'pytest-cov',
-        'mock==1.0.1',
-        'coverage'
+        'mock==1.0.1'
     ],
     install_requires=[
         'pika',
         'python-daemon',
         'simplejson',
-        'gns3-netifaces',
         'psutil',
-        'clint'
+        'clint',
+        'schedule'
     ],
     scripts=[
         'bin/psistats'

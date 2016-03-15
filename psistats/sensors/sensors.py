@@ -1,12 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+###############################################################################
+# MODIFIED FROM ORIGINAL VERSION
+#
+# This file is not the same as in pypi. It includes a pull request to fix py3
+# incompabilities that never ended up getting merged.
+###############################################################################
 import os
 
 from ctypes import CDLL, c_char_p, c_int, c_void_p, c_uint, c_double, byref, Structure, get_errno,\
     POINTER, c_short, c_size_t, create_string_buffer
 from ctypes.util import find_library
 
-from sensors import stdc
+from psistats.sensors import stdc
 
 version_info = (0, 0, 3)
 

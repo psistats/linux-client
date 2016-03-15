@@ -6,14 +6,14 @@ Created on Jun 21, 2014
 from psistats import stats
 from psistats import queue
 from sched import QueueInterval
-from psistats import sensors as libsensors
+from psistats.sensors import sensors as libsensors
 import time
 import logging
 import logging.config as loggingconfig
 import sys
 import simplejson as json
 from psistats.exceptions import MessageNotSentException, ConnectionException, QueueException, ExchangeException
-
+import psutil
 
 
 def ipaddr(appConfig):
@@ -26,44 +26,50 @@ def mem(appConfig):
         'mem': stats.mem()
     }
 
+def hddspace(appConfig):
+    return {
+        'hddspace': None
+    }
+
+def hddtemps(appConfig):
+    return {
+        'hddtemps': stats.hddtemps(appConfig['hddtemp']['hostname'], appConfig['hddtemp']['port'])
+    }
+
+def cpu(appConfig):
+    return {
+        'cpu': stats.cpu(per_cpu=True)
+    }
+     
+
 def sensors(appConfig):
-    libsensors.init()
+    devices = stats.sensors(appConfig['sensors']['devices'])
 
-    sensors
-    devices = {}
+    return {
+        'sensors': devices
+    }
 
-    for device in appConfig['sensors']['devices']:
-        chipName,feature = device.split('.',1)
-        if chipName not in devices:
-            devices[chipName] = {}
+def hddspace(appConfig):
+    devices = stats.hdds()
 
-        devices[chipName][feature] = {
-            'value': 0,
-            'unit': None
-        }
+    deviceSpaces = {}
 
-    for chipName in devices.iterkeys():
-        for chip in libsensors.iter_detected_chips(chip_name=chipName):
-            for feature in chip:
-                if feature.label in devices[chipName]:
-                    unit = None
-                    if feature.type == libsensors.SENSORS_FEATURE_FAN:
-                        unit = 'RPM'
-                    elif feature.type == libsensors.SENSORS_FEATURE_TEMP:
-                        unit = 'C'
-                    devices[chipName][feature.label]['value'] = feature.get_value()
-                    devices[chipName][feature.label]['unit'] = unit
+    for device in devices:
+        deviceSpaces[device] = stats.hddspace(device)
 
-    libsensors.cleanup()
-
-    return devices
+    return {
+        'hddspace': deviceSpaces
+    }
 
 class App(object):
 
     reporters = [
         ('ipaddr', ipaddr),
         ('mem', mem),
-        ('sensors', sensors)
+        ('sensors', sensors),
+        ('cpu', cpu),
+        ('hddspace', hddspace),
+        ('hddtemp', hddtemps)
     ]
 
     def __init__(self, config):
@@ -93,12 +99,6 @@ class App(object):
     def init_queue(self):
         self.queue = queue.Queue(self.config['server']['url'], self.config['queue'], self.config['exchange'])
         return self.queue
-
-    def _primary_task(self):
-        self._send_packet(self.prepare_packet(('hostname','cpu','mem','cpu_temp')))
-
-    def _secondary_task(self):
-        self._send_packet(self.prepare_packet(('hostname','ipaddr','uptime')))
 
     def _send_packet(self, packet):
         packet_json = json.dumps(packet)
@@ -134,9 +134,12 @@ class App(object):
             queue.start()
 
             for reporterName, reporterCb in self.reporters:
-                self.logger.debug('Revving up %s', reporterName)
-                self._reporterThreads[reporterName] = QueueInterval(self.config[reporterName]['interval'], reporterCb, queue)
-                self._reporterThreads[reporterName].start(self.config)
+                if self.config[reporterName]['enabled'] == 0:
+                    self.logger.debug('Reporter %s is disabled' % reporterName)
+                else:
+                    self.logger.debug('Revving up %s', reporterName)
+                    self._reporterThreads[reporterName] = QueueInterval(self.config[reporterName]['interval'], reporterCb, queue)
+                    self._reporterThreads[reporterName].start(self.config)
 
             self._running = True
             self._loop()
@@ -153,3 +156,4 @@ class App(object):
                 reporterThread = self._reporterThreads[reporter]
                 reporterThread.stop()
             queue.stop()
+
