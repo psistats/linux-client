@@ -9,9 +9,8 @@ class CleanCommand(Command):
         'target',
         'build',
         'dist',
-        'psistats_client.egg-info',
-        '3rdparty/sensors/build',
-        '3rdparty/sensors/PySensors.egg-info',
+        'deb_dist',
+        'psistats.egg-info',
         '.eggs'
     ]
 

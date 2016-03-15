@@ -18,17 +18,6 @@ import time
 import stat
 from daemon import runner
 
-#
-# Check if we are being called from an installation
-# or not. Probably not the best way to do this.
-#
-project_root = os.path.realpath(os.path.dirname(os.path.realpath(__file__)) + "/..")
-setup_file = project_root + "/setup.py"
-psistats_folder = project_root + "/psistats"
-
-if (os.path.isfile(setup_file) and os.path.isdir(psistats_folder)):
-    sys.path.insert(0, project_root)
-
 from psistats import app
 from psistats import config
 from psistats.sensors import sensors
@@ -67,7 +56,7 @@ def start_local():
 
 def start():
     """
-    Starst psistats as a background service"
+    Starts psistats as a background service"
     """
     out('[x] Starting Psistats service... ')
     psistats = app.App(config.get_config())
@@ -146,27 +135,33 @@ def list_sensors():
         sensors.cleanup()
 
 
-retval = 0
+def help():
+    sys.stdout.write('psistats [start|start-local|stop|restart|status|sensors]\n')
 
-if len(sys.argv) != 2:
-    sys.stdout.write("psistats [start|start-local|top|restart|status|sensors]\n")
-    retval = 1
-elif sys.argv[1] == 'start':
-    start()
-elif sys.argv[1] == 'stop':
-    stop()
-elif sys.argv[1] == 'restart':
-    stop()
-    start()
-elif sys.argv[1] == 'status':
-    status()
-elif sys.argv[1] == 'start-local':
-    start_local()
-elif sys.argv[1] == 'sensors':
-    list_sensors()
-else:
-    sys.stdout.write("psistats [start|start-local|stop|restart|status|sensors]\n")
-    retval = 1
+def main():
+    retval = 0
+    
+    if len(sys.argv) != 2:
+        help()
+        retval = 1
+    elif sys.argv[1] == 'start':
+        start()
+    elif sys.argv[1] == 'stop':
+        stop()
+    elif sys.argv[1] == 'restart':
+        stop()
+        start()
+    elif sys.argv[1] == 'status':
+        status()
+    elif sys.argv[1] == 'start-local':
+        start_local()
+    elif sys.argv[1] == 'sensors':
+        list_sensors()
+    else:
+        sys.stdout.write("psistats [start|start-local|stop|restart|status|sensors]\n")
+        retval = 1
 
-sys.exit(retval)
+    return retval
 
+if __name__ == "__main__":
+    main()

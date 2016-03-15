@@ -137,5 +137,9 @@ def get_linux_config_file():
         return get_homedir_config_file()
     elif os.path.isfile("/etc/" + CONF_FILE):
         return "/etc/" + CONF_FILE
+    elif os.path.isfile('/usr/local/share/psistats/' + CONF_FILE):
+        return '/usr/local/share/psistats/' + CONF_FILE
+    elif os.path.isfile('/usr/share/psistats/' + CONF_FILE):
+        return '/usr/share/psistats/' + CONF_FILE
 
     raise FileNotFoundException("Unable to find configuration file %s" % CONF_FILE)

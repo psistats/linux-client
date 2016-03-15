@@ -9,6 +9,7 @@ import socket
 import os
 from psistats.sensors import sensors as libsensors
 
+
 def sensors(sensorList):
     libsensors.init()
 

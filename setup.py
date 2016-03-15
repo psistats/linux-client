@@ -40,22 +40,21 @@ class CoverageCommand(Command):
 
 
 setup(
-    name="psistats-client",
+    name="psistats",
     version="0.1.1develop",
     description="Psistats python client",
     url="http://github.com/alex-dow/psistats-linux-client",
     author="Alex D",
     author_email="adow@psikon.com",
     license="MIT",
-    packages=['psistats'],
+    packages=['psistats', 'psistats/sensors'],
     data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
-#    test_suite="tests",
     setup_requires=[
         'pytest'
     ],
     tests_require=[
-        'pytest==2.9.0',
+        'PyTest',
         'pytest-cov',
         'mock==1.0.1'
     ],
@@ -63,18 +62,15 @@ setup(
         'pika',
         'python-daemon',
         'simplejson',
-        'psutil',
-        'clint',
-        'schedule'
+        'psutil'
     ],
-    scripts=[
-        'bin/psistats'
-    ],
+    entry_points={
+        'console_scripts': [
+            'psistats = psistats.cli:main'
+        ]
+    },
     cmdclass={
-#        'install': InstallCommand,
-#        'develop': DevelopCommand,
         'clean': CleanCommand,
-        #'coverage': CoverageCommand,
         'test': PyTest
     }
 )
