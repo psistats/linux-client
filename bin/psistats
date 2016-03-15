@@ -17,7 +17,7 @@ import psutil
 import time
 import stat
 from daemon import runner
-import sensors
+from psistats import sensors
 
 #
 # Check if we are being called from an installation

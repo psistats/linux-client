@@ -6,7 +6,7 @@ Created on Jun 21, 2014
 from psistats import stats
 from psistats import queue
 from sched import QueueInterval
-import sensors as libsensors
+from psistats import sensors as libsensors
 import time
 import logging
 import logging.config as loggingconfig

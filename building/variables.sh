@@ -5,6 +5,10 @@ else
     PROJECT_DIR=$WORKSPACE
 fi
 
+if [ -z $BUILD_NUMBER ]; then
+  BUILD_NUMBER=1
+fi
+
 TARGET_DIR=$PROJECT_DIR/target
 REPORTS_DIR=$TARGET_DIR/reports
 COVERAGE_DIR=$REPORTS_DIR/coverage
