@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# psistats
+#
+# description: Psistats Reporting Service
+#
+
+### BEGIN INIT INFO
+# Provides: psistats
+# Required-Start: $remote_fs $network
+# Required-Stop: $remote_fs $network
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Description: Psistats
+# Short-Description: Psistats
+### END INIT INFO
+
+PATH=:/sbin:/usr/sbin:/bin:/usr/bin
+NAME=psistats
+DAEMON=/usr/bin/${NAME}
+RETVAL=0
+set -e
+
+. /lib/lsb/init-functions
+. /lib/init/vars.sh
+
+
+case "$1" in
+  start)
+    $DAEMON start
+  stop)
+    $DAEMON stop
+  status)
+    $DAEMON status
+  *)
+    echo "Usage: $0 {start|stop|status}"
+    ;;
+esac
+    

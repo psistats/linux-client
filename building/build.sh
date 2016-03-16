@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PATH_SELF=$( cd "$( dirname "$0" )" && pwd )
-source $PATH_SELF/variables.sh
+PROJECT_DIR=$PATH_SELF/..
 
 cmd () {
     echo "[RUN] $1"
@@ -11,43 +11,35 @@ cmd () {
     fi
 }
 
-echo Project Root: $PROJECT_DIR
-cd $PROJECT_DIR
-
-if [ ! -f $PYENV_DIR/bin/activate ]; then
-    cmd "rm -rfv $PYENV_DIR"
-    cmd "virtualenv $PYENV_DIR"
-fi
+cmd "cd $PROJECT_DIR"
 
 VERSION=$( python setup.py --version )
 ARTIFACT_ID=$( python setup.py --name )
 
-cat << EOT > $TARGET_DIR/env.properties
-VERSION=$VERSION
-ARTIFACT_ID=$ARTIFACT_ID
-BUILD_NUMBER=$BUILD_NUMBER
-EOT
- 
 
-cmd "source $PYENV_DIR/bin/activate"
+cmd "rm -rfv building/venv"
+cmd "virtualenv building/venv"
+cmd "source building/venv/bin/activate"
 cmd "pip install stdeb"
-cmd "python setup.py sdist --dist-dir=$DIST_DIR"
+cmd "python setup.py clean --all"
+cmd "python setup.py test --addopt \"--cov=psistats --cov-report=html --cov-report=xml --cov-report=annotate\""
+cmd "python setup.py install"
+cmd "python setup.py sdist"
+cmd "python setup.py --command-packages=stdeb.command sdist_dsc"
+cmd "cd deb_dist/$ARTIFACT_ID-$VERSION"
+cmd "cp ../../debian/* ./debian/"
+cmd "dpkg-buildpackage -rfakeroot -uc -us"
+#cmd "python setup.py --command-packages=stdeb.command bdist_deb"
 
-cd $DIST_DIR
-cmd "tar -xzvf ${ARTIFACT_ID}-${VERSION}.tar.gz"
 
-SRC_DIR=$DIST_DIR/${ARTIFACT_ID}-${VERSION}
-cd $SRC_DIR
-cmd "python setup.py --command-packages=stdeb.command sdist_dsc --debian-version=$BUILD_NUMBER --package=$ARTIFACT_ID"
-
-KEY=98A870F9
-DEBDIST_DIR=$SRC_DIR/deb_dist
-DEBIAN_DIR=$DEBDIST_DIR/$ARTIFACT_ID-$VERSION/debian
-DEB_FILE=${ARTIFACT_ID}_${VERSION}-${BUILD_NUMBER}_all.deb
-
-cd $DEBDIST_DIR
-cmd "debsign -S --re-sign -k$KEY ${ARTIFACT_ID}_${VERSION}-${BUILD_NUMBER}_source.changes"
-cmd "debsign -S --re-sign -k$KEY ${ARTIFACT_ID}_${VERSION}-${BUILD_NUMBER}.dsc"
-
+#KEY=98A870F9
+#DEBDIST_DIR=$SRC_DIR/deb_dist
+#DEBIAN_DIR=$DEBDIST_DIR/$ARTIFACT_ID-$VERSION/debian
+#DEB_FILE=${ARTIFACT_ID}_${VERSION}-${BUILD_NUMBER}_all.deb
+#
+#cd $DEBDIST_DIR
+#cmd "debsign -S --re-sign -k$KEY ${ARTIFACT_ID}_${VERSION}-${BUILD_NUMBER}_source.changes"
+#cmd "debsign -S --re-sign -k$KEY ${ARTIFACT_ID}_${VERSION}-${BUILD_NUMBER}.dsc"
+#
 echo "---------------------"
 echo "Build finished!"

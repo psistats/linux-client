@@ -7,37 +7,7 @@ import inspect
 import shutil
 import fnmatch
 
-from buildcmds.pytest import PyTest
 from buildcmds.clean import CleanCommand
-
-class CoverageCommand(Command):
-    description = "Create coverage reports"
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        installDependency(['mock','coverage','pytest','pytest-cov'])
-
-        cmd = [
-            'py.test',
-            '--cov-report',
-            'html',
-            '--cov-report',
-            'xml',
-            '--cov',
-            'psistats',
-            'tests/'
-        ]
-
-        ret = executeShellCmd(cmd)
-        if ret > 0:
-            raise RuntimeError('Unable to run coverage reports, error code: %s ' % ret)
-
 
 setup(
     name="psistats",
@@ -51,12 +21,12 @@ setup(
     data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
     setup_requires=[
-        'pytest'
+        'pytest-runner'
     ],
     tests_require=[
-        'PyTest',
         'pytest-cov',
-        'mock==1.0.1'
+        'mock==1.0.1',
+        'pytest'
     ],
     install_requires=[
         'pika',
@@ -71,6 +41,5 @@ setup(
     },
     cmdclass={
         'clean': CleanCommand,
-        'test': PyTest
     }
 )
