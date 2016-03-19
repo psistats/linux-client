@@ -16,18 +16,25 @@ cmd "cd $PROJECT_DIR"
 VERSION=$( python setup.py --version )
 ARTIFACT_ID=$( python setup.py --name )
 
+if [ -z "${BUILD_NUMBER}" ];
+then 
+  BUILD_NUMBER=1
+fi
 
-cmd "rm -rfv building/venv"
-cmd "virtualenv building/venv"
-cmd "source building/venv/bin/activate"
+DEBDIST_DIR=$PROJECT_DIR/deb_dist
+DEBSRC_DIR=${DEBDIST_DIR}/${ARTIFACT_ID}-${VERSION}
+VENV_DIR=$PATH_SELF/venv
+
+cmd "rm -rfv $VENV_DIR"
+cmd "virtualenv $VENV_DIR"
+cmd "source $VENV_DIR/bin/activate"
 cmd "pip install stdeb"
 cmd "python setup.py clean --all"
-cmd "python setup.py test --addopt \"--cov=psistats --cov-report=html --cov-report=xml --cov-report=annotate\""
 cmd "python setup.py install"
 cmd "python setup.py sdist"
-cmd "python setup.py --command-packages=stdeb.command sdist_dsc"
-cmd "cd deb_dist/$ARTIFACT_ID-$VERSION"
-cmd "cp ../../debian/* ./debian/"
+cmd "python setup.py --command-packages=stdeb.command sdist_dsc --debian-version=$BUILD_NUMBER"
+cmd "cp $PROJECT_DIR/debian/* $DEBSRC_DIR/debian"
+cmd "cd $DEBSRC_DIR"
 cmd "dpkg-buildpackage -rfakeroot -uc -us"
 #cmd "python setup.py --command-packages=stdeb.command bdist_deb"
 
