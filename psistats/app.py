@@ -5,7 +5,7 @@ Created on Jun 21, 2014
 '''
 from psistats import stats
 from psistats import queue
-from sched import QueueInterval
+from workerThread import WorkerThread
 from psistats.sensors import sensors as libsensors
 import time
 import logging
@@ -50,6 +50,7 @@ def sensors(appConfig):
     }
 
 def hddspace(appConfig):
+
     devices = stats.hdds()
 
     deviceSpaces = {}
@@ -61,6 +62,7 @@ def hddspace(appConfig):
         'hddspace': deviceSpaces
     }
 
+    
 class App(object):
 
     reporters = [
@@ -79,6 +81,9 @@ class App(object):
 
         self.pidfile_path = config['app']['pidfile']
         self.pidfile_timeout = config['app']['pidfile_timeout']
+        self.stdin_path = config['app']['stdin_path']
+        self.stdout_path = config['app']['stdout_path']
+        self.stderr_path = config['app']['stderr_path']
         
         self._running = False
 
@@ -115,11 +120,8 @@ class App(object):
         return packet
 
     def _loop(self):
-        # used as a counter to determine interval to
-        # send uptime and ip address updates
-
         while self._running == True:
-            time.sleep(1)
+            time.sleep(60)
 
 
     def run(self):
@@ -130,16 +132,9 @@ class App(object):
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
         
         try:
-            queue = self.init_queue()
-            queue.start()
-
             for reporterName, reporterCb in self.reporters:
-                if self.config[reporterName]['enabled'] == 0:
-                    self.logger.debug('Reporter %s is disabled' % reporterName)
-                else:
-                    self.logger.debug('Revving up %s', reporterName)
-                    self._reporterThreads[reporterName] = QueueInterval(self.config[reporterName]['interval'], reporterCb, queue)
-                    self._reporterThreads[reporterName].start(self.config)
+                self._reporterThreads[reporterName] = WorkerThread(self.config[reporterName]['interval'], reporterCb, self.config)
+                self._reporterThreads[reporterName].start()
 
             self._running = True
             self._loop()
@@ -155,5 +150,4 @@ class App(object):
                 self.logger.debug('Stopping thread: %s', reporter)
                 reporterThread = self._reporterThreads[reporter]
                 reporterThread.stop()
-            queue.stop()
 

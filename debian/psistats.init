@@ -28,10 +28,13 @@ set -e
 case "$1" in
   start)
     $DAEMON start
+    ;;
   stop)
     $DAEMON stop
+    ;;
   status)
     $DAEMON status
+    ;;
   *)
     echo "Usage: $0 {start|stop|status}"
     ;;

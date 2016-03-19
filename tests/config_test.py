@@ -65,17 +65,17 @@ class ConfigTest(unittest.TestCase):
         os.remove(self.TMP_DIR + "/.psistats/psistats.conf")
         
         """
-        Test when psistats.conf is in /etc/psistats.conf
+        Test when psistats.conf is in /etc/psistats/psistats.conf
         """
         def isfile_sideeffect(*args):
-            if args[0] == "/etc/psistats.conf":
+            if args[0] == "/etc/psistats/psistats.conf":
                 return True
             else:
                 return False
 
         mock_os_isfile = mock.patch.object(config.os.path, 'isfile', side_effect=isfile_sideeffect)
         mock_os_isfile.start()
-        self.assertEqual(config.get_linux_config_file(), "/etc/psistats.conf")
+        self.assertEqual(config.get_linux_config_file(), "/etc/psistats/psistats.conf")
         mock_os_isfile.stop()
 
         """
