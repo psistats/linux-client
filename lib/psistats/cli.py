@@ -12,15 +12,22 @@
 # Author: Alex Dowgailenko <adow@psikon.com>
 
 import sys
+# sys.path.append('../lib')
+
+
 import os
 import psutil
 import time
 import stat
+
+
+
+
 from daemon import runner
 
 from psistats import app
 from psistats import config
-from psistats.sensors import sensors
+from psistats import sensors
 
 def out(msg):
     """
@@ -50,8 +57,8 @@ def start_local():
     Starts psistats in the current terminal
     """
     out('[x] Starting Psistats service locally... ')
-    psistats = app.App(config.get_config())
-    psistats.run()    
+    psistatsApp = app.App(config.get_config())
+    psistatsApp.run()    
     
 
 def start():
@@ -59,9 +66,9 @@ def start():
     Starts psistats as a background service"
     """
     out('[x] Starting Psistats service... ')
-    psistats = app.App(config.get_config())
+    psistatsApp = app.App(config.get_config())
 
-    if is_running(psistats.pidfile_path) == True:
+    if is_running(psistatsApp.pidfile_path) == True:
         out("Already running!\n")
     else:
         newpid = os.fork()

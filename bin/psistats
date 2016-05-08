@@ -1,0 +1,21 @@
+#!/usr/bin/env python
+### BEGIN INIT INFO
+# Provides: psistats
+# Required-Start: $remote_fs $syslog
+# Required-Stop: $remote_fs $syslog
+# Default-Start: 2 3 4 5 
+# Default-Stop: 1
+# Short-Description: Psistats
+# Description: Runs the Psistats reporting service
+### END INIT INFO
+
+# Author: Alex Dowgailenko <adow@psikon.com>
+
+import sys
+import os
+sys.path.append(
+    os.path.realpath(os.path.dirname(__file__) + "/../lib")
+)
+
+from psistats import cli
+cli.main()

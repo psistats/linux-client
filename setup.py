@@ -17,7 +17,11 @@ setup(
     author="Alex D",
     author_email="adow@psikon.com",
     license="MIT",
-    packages=['psistats', 'psistats/sensors'],
+    packages=['psistats', 'psistats.sensors'],
+    package_dir={
+        'psistats': 'lib/psistats', 
+        'psistats.sensors': 'lib/psistats/sensors' 
+    },
     data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
     setup_requires=[
@@ -32,7 +36,8 @@ setup(
         'pika',
         'python-daemon',
         'simplejson',
-        'psutil'
+        'psutil',
+        'netifaces'
     ],
     entry_points={
         'console_scripts': [

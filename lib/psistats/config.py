@@ -131,15 +131,21 @@ def get_linux_config_file():
 
     cwd = os.getcwd()
 
-    if os.path.isfile(cwd + "/" + CONF_FILE):
-        return cwd + "/" + CONF_FILE
-    elif os.path.isfile(get_homedir_config_file()):
-        return get_homedir_config_file()
-    elif os.path.isfile("/etc/psistats/" + CONF_FILE):
-        return "/etc/psistats/" + CONF_FILE
-    elif os.path.isfile('/usr/local/share/psistats/' + CONF_FILE):
-        return '/usr/local/share/psistats/' + CONF_FILE
-    elif os.path.isfile('/usr/share/psistats/' + CONF_FILE):
-        return '/usr/share/psistats/' + CONF_FILE
+    path = None
 
-    raise FileNotFoundException("Unable to find configuration file %s" % CONF_FILE)
+    if os.path.isfile(cwd + "/" + CONF_FILE):
+        path = cwd + "/" + CONF_FILE
+    elif os.path.isfile(get_homedir_config_file()):
+        path = get_homedir_config_file()
+    elif os.path.isfile("/etc/psistats/" + CONF_FILE):
+        path = "/etc/psistats/" + CONF_FILE
+    elif os.path.isfile('/usr/local/share/psistats/' + CONF_FILE):
+        path = '/usr/local/share/psistats/' + CONF_FILE
+    elif os.path.isfile('/usr/share/psistats/' + CONF_FILE):
+        path = '/usr/share/psistats/' + CONF_FILE
+
+    if path == None: 
+        raise FileNotFoundException("Unable to find configuration file %s" % CONF_FILE)
+
+    print path
+    return path

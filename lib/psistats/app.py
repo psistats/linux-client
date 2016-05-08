@@ -6,7 +6,7 @@ Created on Jun 21, 2014
 from psistats import stats
 from psistats import queue
 from workerThread import WorkerThread
-from psistats.sensors import sensors as libsensors
+import psistats.sensors as libsensors
 import time
 import logging
 import logging.config as loggingconfig
@@ -18,12 +18,12 @@ import psutil
 
 def ipaddr(appConfig):
     return {
-        'ipaddr': stats.ipaddr()
+        'ipaddr': stats.get_ipaddrs()
     }
 
 def mem(appConfig):
     return {
-        'mem': stats.mem()
+        'mem': stats.get_mem()
     }
 
 def hddspace(appConfig):
@@ -33,17 +33,17 @@ def hddspace(appConfig):
 
 def hddtemps(appConfig):
     return {
-        'hddtemps': stats.hddtemps(appConfig['hddtemp']['hostname'], appConfig['hddtemp']['port'])
+        'hddtemps': stats.get_hddtemps(appConfig['hddtemp']['hostname'], appConfig['hddtemp']['port'])
     }
 
 def cpu(appConfig):
     return {
-        'cpu': stats.cpu(per_cpu=True)
+        'cpu': stats.get_cpu(per_cpu=True)
     }
      
 
 def sensors(appConfig):
-    devices = stats.sensors(appConfig['sensors']['devices'])
+    devices = stats.get_sensors(appConfig['sensors']['devices'])
 
     return {
         'sensors': devices
@@ -51,12 +51,12 @@ def sensors(appConfig):
 
 def hddspace(appConfig):
 
-    devices = stats.hdds()
+    devices = stats.get_hdds()
 
     deviceSpaces = {}
 
     for device in devices:
-        deviceSpaces[device] = stats.hddspace(device)
+        deviceSpaces[device] = stats.get_hddspace(device)
 
     return {
         'hddspace': deviceSpaces
@@ -121,13 +121,13 @@ class App(object):
 
     def _loop(self):
         while self._running == True:
-            time.sleep(60)
+            time.sleep(1)
 
 
     def run(self):
         self.logger.info("Starting")
 
-        hostname = stats.hostname()
+        hostname = stats.get_hostname()
 
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
         

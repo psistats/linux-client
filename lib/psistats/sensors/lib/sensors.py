@@ -12,7 +12,7 @@ from ctypes import CDLL, c_char_p, c_int, c_void_p, c_uint, c_double, byref, Str
     POINTER, c_short, c_size_t, create_string_buffer
 from ctypes.util import find_library
 
-from psistats.sensors import stdc
+from psistats.sensors.lib import stdc
 
 version_info = (0, 0, 3)
 

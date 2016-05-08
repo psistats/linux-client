@@ -1,0 +1,12 @@
+Source: psistats
+Section: misc
+Priority: optional
+Maintainer: Alex Dowgailenko <adow@psikon.com>
+Build-Depends: debhelper (>= 9)
+Standards-Version: 3.9.5
+Homepage: http://www.psikon.com
+
+Package: psistats
+Architecture: all
+Depends: python-netifaces, python-pika, python-daemon, python-simplejson, python-psutil
+Description: Computer monitoring
