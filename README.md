@@ -1,8 +1,9 @@
 Psistats Linux Client
 =====================
 
-Python linux client that sends some computer statistics to a RabbitMQ
-server.
+Python linux client that sends some computer statistics to a RabbitMQ server.
+
+This is currently beta software.
 
 Format
 ------
@@ -29,11 +30,11 @@ Installation (From Source):
 
 1. python setup.py install
 2. edit psistats.conf to your liking
-3. run psistats start
+3. run psistats start to start in the background, or run psistats start-local to run in console mode.
 
 
 Installation (Ubuntu 12.04+ / RaspberryPi / Debian Wheezy):
----------------------------------------
+-----------------------------------------------------------
 
 WARNING: Debian packages are currently unavailable.
 
@@ -43,87 +44,140 @@ Currently you can install from source, then link /usr/bin/psistats to /etc/init.
 Configuration
 -------------
 
-###Queue Settings:
-
-```
-[queue]
-prefix=psistats
-exclusive=True
-durable=False
-autodelete=Yes
-ttl=10000
-```
-
-* **prefix:** The queue name will be [prefix].[hostname].
-* **exclusive:** Whether or not the queue can be used by other clients.
-* **durable:** Whether or not the queue will be recreated automatically upon server restart
-* **autodelete:** Whether or not the queue will be removed when there are no more clients using it
-* **ttl:** How long, in milliseconds, will messages remain in the queue
-
-###Exchange Settings:
-
-```
-[exchange]
-name=psistats
-type=topic
-durable=False
-autodelete=False
-```
-
-* **name:** The exchange name.
-* **type:** What kind of exchange it should be.
-* **durable:** Whether or not the exchange will be recreated automatically upon server restart
-* **autodelete:** Whether or not the exchange will be removed when there are no more clients using it
+## General Settings
 
 ###Server Settings:
 
 ```
 [server]
-url=amqp://guest:guest@localhost:5672/
+url=amqp://guest:guest@localhost:5672
 ```
 
-* **url:** URL (using amqp for the scheme) for the RabbitMQ server
+* **url:** amqp url to your amqp server
 
-###Application Settings
+WARNING: Users of older operating systems such as Ubuntu 14.04 have older system packages for pika (v0.9.13 or lower). If using these older versions, you must include a /%2f at the end of your url if you have no virtual host.
 
-```
-[app]
-retry_timer=5
-pidfile=/var/run/psistats.pid
-pidfile_timeout=5
-stdin_path=/dev/null
-stdout_path=/dev/null
-stderr_path=/dev/null
-```
+## Reporter Settings
 
-* **retry_timer:** Timer, in seconds, to reconnect to RabbitMQ when the connection is lost
-* **pidfile:** Location of pidfile
-* **pidfile_timeout:** Pidfile lock timeout
-* **stdin_path:** Where to send stdin
-* **stdout_path:** Where to send stdout
-* **stderr_path:** Where to send stdrr
+###Sensors:
 
-###Reporters
+The sensors reporter can report information on any available sensor that libsensor can detect. You must have libsensor already installed.
 
-Various reporters are available from psistats, but some have additional dependencies that you will have to install separately.
-
-#### Sensors
-
-The `hddtemp` reporter reports the temperatures of all your drives (if supported) and requires https://wiki.archlinux.org/index.php/Hddtemp to be installed as well as have the daemon running.
-
-The `sensors` reporter can report any value from any available sensor and requires libsensors to be installed.
-
-Debian users can just do this:
+To view a list of available sensors run:
 
 ```
-sudo apt-get install hddtemp libsensors4
+$ psistats sensors
 ```
 
-#### Other Reporters
+or
 
-For more information, refer to the psistats.conf file.
+```
+$ python psistats.py sensors
+```
 
-###Logging Configuration
+
+```
+[sensors]
+enabled=1
+interval=1
+devices[] = (CPU Core 1, coretemp-isa-0000.Core 0)
+            (CPU Core 2, coretemp-isa-0000.Core 1)
+            (CPU Core 3, coretemp-isa-0000.Core 2)
+            (CPU Core 4, coretemp-isa-0000.Core 3)
+```
+
+* **enabled:** Turn reporter on or off
+* **interval:** Number of seconds between reports
+* **devices[]:** A list of label/sensor name
+
+The list of devices are in the format of (LABEL, CHIP.FEATURE).
+
+###HDD Temperature
+
+Reports temperature data of your hard drives, if available.
+
+Requires hddtemp to be installed, and running as a daemon.
+
+```
+[hddtemp]
+enabled=1
+interval=30
+hostname=127.0.0.1
+port=7634
+```
+
+* **enabled:** Turn reporter on or off
+* **interval:** Number of seconds between reports
+* **hostname:** Host name or IP address of the hddtemp daemon
+* **port:** Port number of the hddtemp daemon
+
+###HDD Space
+
+Reports total space used as a percentage for all available harddrives
+
+```
+[hddspace]
+enabled=1
+interval=60
+```
+
+* **enabled:** Turn reporter on or off
+* **interval:** Number of seconds between reports
+
+###IP Address
+
+Reports all available IP addresses and device names
+
+```
+[ipaddr]
+enabled=1
+interval=60
+```
+
+* **enabled:** Turn reporter on or off
+* **interval:** Number of seconds between reports
+
+###Memory
+
+Reports total memory usage in percent
+
+```
+[mem]
+enabled=1
+interval=1
+```
+
+* **enabled:** Turn reporter on or off
+* **interval:** Number of seconds between reports
+
+###CPU
+
+Reports total cpu usage in percent, per core
+
+```
+[cpu]
+enabled=1
+interval=1
+```
+
+* **enabled:** Turn reporter on or off
+* **interval:** Number of seconds between reports
+
+###Uptime
+
+Reports the system uptime
+
+```
+[cpu]
+enabled=1
+interval=1
+```
+
+* **enabled:** Turn reporter on or off
+* **interval:** Number of seconds between reports
+
+
+## Logging
 
 Logging configuration is the python standard. You can read more about it at https://docs.python.org/2/library/logging.config.html#configuration-dictionary-schema.
 
@@ -164,6 +218,7 @@ v0.2.0
 - Can interface with hddtemp and libsensors
 - Can control timer for any reporter
 - Various code improvements
+
 v0.1.0
 - Refactored entirely the interaction between psistats and RabbitMQ
 - Enabled the ability to turn on or off any bit of information that is broadcasted

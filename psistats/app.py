@@ -3,60 +3,68 @@ Created on Jun 21, 2014
 
 @author: v0idnull
 '''
-from psistats import stats
-from psistats import queue
-from workerThread import WorkerThread
-import psistats.sensors as libsensors
 import time
 import logging
 import logging.config as loggingconfig
 import sys
 import simplejson as json
-from psistats.exceptions import MessageNotSentException, ConnectionException, QueueException, ExchangeException
 import psutil
 
+from psistats.exceptions import MessageNotSentException, ConnectionException, QueueException, ExchangeException
+from psistats import queue
+from psistats import net
+from psistats import system
+from psistats import libsensors
+from psistats import hdd
+from psistats.workerThread import WorkerThread
 
 def ipaddr(appConfig):
     return {
-        'ipaddr': stats.get_ipaddrs()
+        'ipaddr': net.get_ipaddrs()
     }
 
 def mem(appConfig):
     return {
-        'mem': stats.get_mem()
+        'mem': system.get_mem_usage()
     }
 
 def hddspace(appConfig):
     return {
-        'hddspace': None
+        'hddspace': hdd.get_hdd_space()
     }
 
 def hddtemps(appConfig):
     return {
-        'hddtemps': stats.get_hddtemps(appConfig['hddtemp']['hostname'], appConfig['hddtemp']['port'])
+        'hddtemps': hdd.get_hdd_temps(appConfig['hddtemp']['hostname'], appConfig['hddtemp']['port'])
     }
 
 def cpu(appConfig):
     return {
-        'cpu': stats.get_cpu(per_cpu=True)
+        'cpu': system.get_cpu_usage(True)
     }
      
 
 def sensors(appConfig):
-    devices = stats.get_sensors(appConfig['sensors']['devices'])
+    libsensors.init()
+
+    device_list = libsensors.parse_config_list(appConfig['sensors']['devices'])
+    devices = libsensors.iter_by_list(device_list)
+
+    libsensors.cleanup()
 
     return {
         'sensors': devices
     }
 
+
 def hddspace(appConfig):
 
-    devices = stats.get_hdds()
+    devices = hdd.get_hdds()
 
     deviceSpaces = {}
 
     for device in devices:
-        deviceSpaces[device] = stats.get_hddspace(device)
+        deviceSpaces[device] = hdd.get_hdd_space(device)
 
     return {
         'hddspace': deviceSpaces
@@ -121,20 +129,36 @@ class App(object):
 
     def _loop(self):
         while self._running == True:
-            time.sleep(1)
+            for reporterName, reporterThread in self._reporterThreads.iteritems():
+                if reporterThread.running() == False:
+                    self.logger.debug('Thread %s is not running. Restarting it' % reporterName)
+                    reporterThread.start()
 
+            time.sleep(10)
+
+    def startWorkerThread(self, thread):
+        try:
+            thread.start()
+        except ConnectionException as e:
+            self.logger.error('Error starting thread')
+            self.logger.exception(e)
 
     def run(self):
         self.logger.info("Starting")
 
-        hostname = stats.get_hostname()
+        hostname = net.get_hostname()
 
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
         
         try:
             for reporterName, reporterCb in self.reporters:
                 self._reporterThreads[reporterName] = WorkerThread(self.config[reporterName]['interval'], reporterCb, self.config)
-                self._reporterThreads[reporterName].start()
+
+                try:
+                    self._reporterThreads[reporterName].start()
+                except ConnectionException as e:
+                    self.logger.error('Error starting thead: %s' % reporterName)
+                    self.logger.exception(e)
 
             self._running = True
             self._loop()

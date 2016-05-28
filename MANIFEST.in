@@ -4,4 +4,4 @@ include INSTALL
 include psistats.conf
 include setup.cfg
 include pytest.ini
-include buildcmds/*.py
+include psistats.py

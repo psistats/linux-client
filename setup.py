@@ -7,26 +7,25 @@ import inspect
 import shutil
 import fnmatch
 
-from buildcmds.clean import CleanCommand
-
 setup(
     name="psistats",
-    version="0.1.1develop",
-    description="Psistats python client",
+    version="0.2.0develop",
+    description="Psistats Reporting Client",
+    long_description="A python tool to report computer vitals to an amqp message queue",
     url="http://github.com/alex-dow/psistats-linux-client",
-    author="Alex D",
+    author="Alex Dowgailenko",
     author_email="adow@psikon.com",
     license="MIT",
-    packages=['psistats', 'psistats.sensors'],
+    packages=['psistats', 'psistats.libsensors', 'psistats.libsensors.lib', 'psistats.hdd'],
+    platforms=['unix','linux'],
     package_dir={
-        'psistats': 'lib/psistats', 
-        'psistats.sensors': 'lib/psistats/sensors' 
+        'psistats': 'psistats', 
+        'psistats.hdd': 'psistats/hdd',
+        'psistats.libsensors': 'psistats/libsensors',
+        'psistats.libsensors.lib': 'psistats/libsensors/lib'
     },
     data_files=[('share/psistats', ['psistats.conf'])],
     zip_safe=False,
-    setup_requires=[
-        'pytest-runner'
-    ],
     tests_require=[
         'pytest-cov',
         'mock==1.0.1',
@@ -43,8 +42,5 @@ setup(
         'console_scripts': [
             'psistats = psistats.cli:main'
         ]
-    },
-    cmdclass={
-        'clean': CleanCommand,
     }
 )

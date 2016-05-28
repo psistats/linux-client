@@ -80,7 +80,7 @@ class Queue(object):
                 exchange=self.exchange_config['name'],
                 routing_key=self.queue_config['name'],
                 body=json,
-                mandatory=True,
+                mandatory=False,
                 properties=self._msg_properties
             )
 

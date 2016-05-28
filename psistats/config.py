@@ -147,5 +147,4 @@ def get_linux_config_file():
     if path == None: 
         raise FileNotFoundException("Unable to find configuration file %s" % CONF_FILE)
 
-    print path
     return path

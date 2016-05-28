@@ -1,12 +1,14 @@
 Source: psistats
-Section: misc
-Priority: optional
+Section: utils
+Priority: extra
 Maintainer: Alex Dowgailenko <adow@psikon.com>
 Build-Depends: debhelper (>= 9)
 Standards-Version: 3.9.5
-Homepage: http://www.psikon.com
+Homepage: https://github.com/psistats/linux-client
 
 Package: psistats
 Architecture: all
+Version: 0.2.0develop-1
 Depends: python-netifaces, python-pika, python-daemon, python-simplejson, python-psutil
+Recommends: hddtemp, lm-sensors
 Description: Computer monitoring

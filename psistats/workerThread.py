@@ -3,7 +3,7 @@ from threading import Thread
 import logging
 import json
 from queue import Queue
-
+from exceptions import ConnectionException
 
 class WorkerThread(Thread):
     def __init__(self, interval, worker, config):
@@ -43,6 +43,12 @@ class WorkerThread(Thread):
         self._running = True
 
         while self._running == True:
-            self.loop()
+            try:
+                self.loop()
+            except ConnectionException as e:
+                self._logger.error(e.message)
+                self._running = False
 
+    def running(self):
+        return self._running
 

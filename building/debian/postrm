@@ -1,5 +1,0 @@
-#!/bin/sh
-
-update-rc.d -f psistats remove
-rm -fv /etc/init.d/psistats
-rm -fv /etc/psistats.conf

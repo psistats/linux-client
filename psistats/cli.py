@@ -1,33 +1,16 @@
 #!/usr/bin/env python
-### BEGIN INIT INFO
-# Provides: psistats
-# Required-Start: $remote_fs $syslog
-# Required-Stop: $remote_fs $syslog
-# Default-Start: 2 3 4 5 
-# Default-Stop: 1
-# Short-Description: Psistats
-# Description: Runs the Psistats reporting service
-### END INIT INFO
-
-# Author: Alex Dowgailenko <adow@psikon.com>
 
 import sys
-# sys.path.append('../lib')
-
-
 import os
 import psutil
 import time
 import stat
 
-
-
-
 from daemon import runner
 
 from psistats import app
 from psistats import config
-from psistats import sensors
+from psistats import libsensors
 
 def out(msg):
     """
@@ -123,32 +106,36 @@ def list_sensors():
     """
     List available sensors in a config file format
     """
-    sensors.init()
+    libsensors.init()
 
     try:
-        for chip in sensors.iter_detected_chips():
+        for chip in libsensors.iter_detected_chips():
             confKey = str(chip)
 
             unit = ''
 
             for feature in chip:
-                if feature.type == sensors.SENSORS_FEATURE_FAN:
+                if feature.type == libsensors.SENSORS_FEATURE_FAN:
                     unit = 'RPM'
-                elif feature.type == sensors.SENSORS_FEATURE_TEMP:
+                elif feature.type == libsensors.SENSORS_FEATURE_TEMP:
                     unit = '*C'
                 
                 sys.stdout.write('%s.%s  (%s %s)\n' % (confKey, feature.label, feature.get_value(), unit))
     finally:
-        sensors.cleanup()
+        libsensors.cleanup()
 
 
 def help():
     sys.stdout.write('psistats [start|start-local|stop|restart|status|sensors]\n')
 
-def main():
+def main(argv=None):
+
+    if argv == None:
+        argv = sys.argv
+
     retval = 0
     
-    if len(sys.argv) != 2:
+    if len(argv) != 2:
         help()
         retval = 1
     elif sys.argv[1] == 'start':

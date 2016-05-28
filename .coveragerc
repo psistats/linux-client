@@ -1,0 +1,9 @@
+[run]
+branch = True
+
+[html]
+directory = build/reports/coverage/html
+
+[xml]
+output = build/reports/coverage/coverage.xml
+

@@ -1,11 +1,11 @@
 __all__ = ['sensors', 'config']
 
-from psistats.sensors.lib.sensors import init
-from psistats.sensors.lib.sensors import iter_detected_chips
-from psistats.sensors.config import parse_config_list
-from psistats.sensors.lib.sensors import cleanup
-from psistats.sensors.lib.sensors import SENSORS_FEATURE_FAN
-from psistats.sensors.lib.sensors import SENSORS_FEATURE_TEMP
+from psistats.libsensors.lib.sensors import init
+from psistats.libsensors.lib.sensors import iter_detected_chips
+from psistats.libsensors.config import parse_config_list
+from psistats.libsensors.lib.sensors import cleanup
+from psistats.libsensors.lib.sensors import SENSORS_FEATURE_FAN
+from psistats.libsensors.lib.sensors import SENSORS_FEATURE_TEMP
 
 
 def iter_by_list(sensorList):
