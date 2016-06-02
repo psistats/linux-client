@@ -33,12 +33,19 @@ Installation (From Source):
 3. run psistats start to start in the background, or run psistats start-local to run in console mode.
 
 
-Installation (Ubuntu 12.04+ / RaspberryPi / Debian Wheezy):
+Installation (Debian / Ubuntu):
 -----------------------------------------------------------
 
-WARNING: Debian packages are currently unavailable.
+Only snapshot builds are available at this time. To install the snapshot repository, run the following commands:
 
-Currently you can install from source, then link /usr/bin/psistats to /etc/init.d/psistats to have psistats start on boot.
+```
+$ echo "deb http://debrepo.psikon.org/snapshots $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/psikon.list
+$ sudo wget -O - http://debrepo.psikon.org/psikon.gpg.key | apt-key add -
+$ sudo apt-get update
+$ sudo apt-get install psistats
+```
+
+These builds could be unstable or buggy. Reporting bugs are encouraged ;)
 
 
 Configuration
