@@ -8,10 +8,12 @@ echo '    \/__/   \::/  /   \:\__\    |:|  |    \::/  /    |:/  / '
 echo '             \/__/     \/__/     \|__|     \/__/     \/__/  '
 
 if [ ! -d "/etc/psistats" ]
+then
   mkdir -p /etc/psistats
 fi
 
 if [ ! -f "/etc/psistats/psistats.conf" ]
+then
   ln -s /usr/share/psistats/psistats.conf /etc/psistats/psistats.conf
 fi
 
