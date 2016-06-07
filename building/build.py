@@ -60,7 +60,7 @@ execute_cmd(['cp', 'debian2/psistats.upstart', 'deb_dist/%s-%s/debian/psistats.u
 execute_cmd(['cp', 'debian2/psistats.postinst', 'deb_dist/%s-%s/debian/psistats.postinst' % (name, version)])
 
 os.chdir('deb_dist/%s-%s' % (name, version))
-#execute_cmd(['dpkg-buildpackage', '-us', '-uc'])
+execute_cmd(['dpkg-buildpackage', '-us', '-uc'])
 
-#os.chdir(projectdir)
-#execute_cmd(['mv', 'deb_dist/%s_%s-%s_all.deb' % (name, version, buildnumber),'dist/'])
+os.chdir(projectdir)
+execute_cmd(['mv', 'deb_dist/%s_%s-%s_all.deb' % (name, version, buildnumber),'dist/'])
