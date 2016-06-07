@@ -119,8 +119,14 @@ def list_sensors():
                     unit = 'RPM'
                 elif feature.type == libsensors.SENSORS_FEATURE_TEMP:
                     unit = '*C'
-                
-                sys.stdout.write('%s.%s  (%s %s)\n' % (confKey, feature.label, feature.get_value(), unit))
+               
+                v = None
+                try:
+                    v = feature.get_value()
+                except SensorsError:
+                    v = 'can not read this sensor'
+
+                sys.stdout.write('%s.%s  (%s %s)\n' % (confKey, feature.label, v, unit))
     finally:
         libsensors.cleanup()
 
