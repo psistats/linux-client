@@ -11,6 +11,7 @@ from daemon import runner
 from psistats import app
 from psistats import config
 from psistats import libsensors
+from psistats.libsensors.lib.sensors import SensorsError
 
 def out(msg):
     """
