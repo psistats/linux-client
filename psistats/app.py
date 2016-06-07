@@ -16,6 +16,7 @@ from psistats import net
 from psistats import system
 from psistats import libsensors
 from psistats import hdd
+from psistats.libsensors import Sensors
 from psistats.workerThread import WorkerThread
 
 def ipaddr(appConfig):
@@ -44,14 +45,36 @@ def cpu(appConfig):
     }
      
 
+
+
 def sensors(appConfig):
-    libsensors.init()
 
-    device_list = libsensors.parse_config_list(appConfig['sensors']['devices'])
-    devices = libsensors.iter_by_list(device_list)
+    if hasattr(sensors, 'libsensor') == False:
 
-    libsensors.cleanup()
+        s = Sensors()
+        s.init()
+        for chipName in appConfig['sensors']['devices']:
+            print "chipName: %s" % chipName
+            s.add_chip(chipName)
 
+        setattr(sensors, 'libsensor', s)
+
+
+    devices = {}
+
+    for chipName in appConfig['sensors']['devices'].iterkeys():
+        chip = appConfig['sensors']['devices'][chipName]
+
+        if chipName not in devices:
+            devices[chipName] = {}
+
+        for featureName in chip.iterkeys():
+            v, unit = sensors.libsensor.get_value(chipName, featureName)
+            devices[chipName][featureName] = {
+                'label': chip[featureName],
+                'value': v,
+                'unit': unit
+            }
     return {
         'sensors': devices
     }

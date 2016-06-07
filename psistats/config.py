@@ -29,10 +29,17 @@ class Config(object):
         config = {}
 
         for section in rawconfig.sections():
-            config[section] = self._process_section(rawconfig.items(section))
+
+            processedSection = self._process_section(rawconfig.items(section))
+            if (section == 'sensors'):
+                processedSection = self._process_sensors_section(processedSection)
+
+            config[section] = processedSection
 
         self._config = config
-        self._config['logging'] = self._logging_config()
+
+        if 'logging' in config:
+            self._config['logging'] = self._logging_config()
 
         self.filename = filename
 
@@ -103,6 +110,36 @@ class Config(object):
             'loggers': loggers,
             'root': root_logger
         }
+
+    def _process_sensors_section(self, values):
+
+        newDeviceList = {}
+
+        for device in values['devices']:
+            if device.startswith('('):
+                parts = device.split(',')
+                label = ','.join(parts[:-1]).strip()[1:]
+                device = parts[-1:][0][:-1].strip()
+            else:
+                label = device
+
+
+            chipName, feature = device.split('.')
+
+            if chipName not in newDeviceList:
+                newDeviceList[chipName] = {}
+
+            newDeviceList[chipName][feature] = label
+
+        values['devices'] = newDeviceList
+
+        return values
+
+
+
+
+
+
 
 
 def get_config(config_file=None):

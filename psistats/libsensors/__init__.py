@@ -6,25 +6,47 @@ from psistats.libsensors.config import parse_config_list
 from psistats.libsensors.lib.sensors import cleanup
 from psistats.libsensors.lib.sensors import SENSORS_FEATURE_FAN
 from psistats.libsensors.lib.sensors import SENSORS_FEATURE_TEMP
+from psistats.libsensors.lib.sensors import Chip
+from psistats.libsensors.lib.sensors import _get_features
 
 
-def iter_by_list(sensorList):
-    devices = {}
-    for chipName in sensorList.iterkeys():
+class Sensors():
+
+    def __init__(self):
+        self.chips = {}
+        self.initted = False
+
+    def init(self):
+        init()
+        self.initted = True
+
+    def cleanup(self):
+        cleanup()
+        self.initted = False
+    
+    def add_chip(self, chipName):
+
         for chip in iter_detected_chips(chip_name=chipName):
+            self.chips[chipName] = {}
+
             for feature in chip:
-                if feature.label in sensorList[chipName]:
-                    unit = None
-                    if feature.type == SENSORS_FEATURE_FAN:
-                        unit = 'RPM'
-                    elif feature.type == SENSORS_FEATURE_TEMP:
-                        unit = 'C' 
+                print "feature label: %s" % feature.label
+                self.chips[chipName][feature.label] = feature
 
-                    if sensorList[chipName][feature.label] not in devices:
-                        devices[sensorList[chipName][feature.label]] = {'value': None, 'unit': None}
+    def _get_unit(self, feature):
+        if feature.type == SENSORS_FEATURE_FAN:
+            return 'rpm'
+        elif feature.type == SENSORS_FEATURE_TEMP:
+            return 'c'
+        else:
+            return None
 
-                    devices[sensorList[chipName][feature.label]]['value'] = feature.get_value()
-                    devices[sensorList[chipName][feature.label]]['unit'] = unit
 
-    return devices
+    def get_value(self, chipName, featureLabel):
+
+        if chipName in self.chips:
+            if featureLabel in self.chips[chipName]:
+                feature = self.chips[chipName][featureLabel]
+                
+                return (feature.get_value(), self._get_unit(feature))
 
