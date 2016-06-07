@@ -13,8 +13,8 @@ class CantReadSensor(Exception):
         Exception.__init__(self, *args, **kwargs)
 
 
-class Sensors():
-    
+class Sensors(object):
+    """Simple abstraction over libsensors""" 
     def __init__(self):
         self.chips = {}
         self.initted = False
