@@ -33,7 +33,6 @@ class Sensors():
             self.chips[chipName] = {}
 
             for feature in chip:
-                print "feature label: %s" % feature.label
                 self.chips[chipName][feature.label] = feature
 
     def _get_unit(self, feature):
@@ -54,5 +53,5 @@ class Sensors():
                     
                     return (feature.get_value(), self._get_unit(feature))
         except SensorsError as e:
-            if e.message == "Can't read":
+            if str(e) == "Can't read":
                 raise CantReadSensor(featureLabel)

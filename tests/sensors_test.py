@@ -10,7 +10,7 @@ from psistats.libsensors import CantReadSensor
 
 class MockFeatureOne():
     def get_value(self):
-        raise SensorsError('Can\'t read')
+        raise SensorsError(message='Can\'t read')
 
 class MockFeatureTwo():
     def __init__(self):
