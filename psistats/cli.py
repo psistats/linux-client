@@ -57,7 +57,7 @@ def start():
         newpid = os.fork()
 
         if newpid == 0:
-            daemon_runner = runner.DaemonRunner(psistats)
+            daemon_runner = runner.DaemonRunner(psistatsApp)
             daemon_runner.do_action()
 
             sys.exit()

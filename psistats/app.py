@@ -8,7 +8,6 @@ import logging
 import logging.config as loggingconfig
 import sys
 import simplejson as json
-import psutil
 
 from psistats.exceptions import MessageNotSentException, ConnectionException, QueueException, ExchangeException
 from psistats import queue
@@ -140,15 +139,6 @@ class App(object):
         packet_json = json.dumps(packet)
         self.logger.debug('Sending packet: %s' % packet_json)
         self.queue.send(packet_json)
-
-    def prepare_packet(self, keys):
-        packet = {}
-
-        for key in keys:
-            statfunc = getattr(stats, key)
-            packet[key] = statfunc() if self.config[key]['enabled'] == True else None
-
-        return packet
 
     def _loop(self):
         while self._running == True:
