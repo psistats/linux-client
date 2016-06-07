@@ -2,12 +2,15 @@ __all__ = ['sensors', 'config']
 
 from psistats.libsensors.lib.sensors import init
 from psistats.libsensors.lib.sensors import iter_detected_chips
-from psistats.libsensors.config import parse_config_list
 from psistats.libsensors.lib.sensors import cleanup
 from psistats.libsensors.lib.sensors import SENSORS_FEATURE_FAN
 from psistats.libsensors.lib.sensors import SENSORS_FEATURE_TEMP
-from psistats.libsensors.lib.sensors import Chip
-from psistats.libsensors.lib.sensors import _get_features
+from psistats.libsensors.lib.sensors import SensorsError
+
+
+class CantReadSensor(Exception):
+    def __init__(self, *args, **kwargs):
+        Exception.__init__(self, *args, **kwargs)
 
 
 class Sensors():
@@ -44,9 +47,12 @@ class Sensors():
 
     def get_value(self, chipName, featureLabel):
 
-        if chipName in self.chips:
-            if featureLabel in self.chips[chipName]:
-                feature = self.chips[chipName][featureLabel]
-                
-                return (feature.get_value(), self._get_unit(feature))
-
+        try:
+            if chipName in self.chips:
+                if featureLabel in self.chips[chipName]:
+                    feature = self.chips[chipName][featureLabel]
+                    
+                    return (feature.get_value(), self._get_unit(feature))
+        except SensorsError as e:
+            if e.message == "Can't read":
+                raise CantReadSensor(featureLabel)
