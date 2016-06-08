@@ -1,11 +1,4 @@
 from setuptools import setup
-from setuptools import Command
-import subprocess
-import sys
-import os
-import inspect
-import shutil
-import fnmatch
 
 setup(
     name="psistats",
@@ -38,11 +31,9 @@ setup(
         'psutil',
         'netifaces'
     ],
-    entry_points={
-        'console_scripts': [
-            'psistats = psistats.cli:main'
-        ]
-    },
+    scripts=[
+        'bin/psistats'
+    ],
     options={
         'build_scripts': {
             'executable': '/usr/bin/env python'
