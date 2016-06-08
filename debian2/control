@@ -2,13 +2,14 @@ Source: psistats
 Section: utils
 Priority: extra
 Maintainer: Alex Dowgailenko <adow@psikon.com>
-Build-Depends: debhelper (>= 9)
-Standards-Version: 3.9.5
+Build-Depends: debhelper (>= 7.4.3), dh-python, python-setuptools, python-all
+Standards-Version: 3.9.1
 Homepage: https://github.com/psistats/linux-client
+Vcs-Browser: https://github.com/psistats/linux-client
+
 
 Package: psistats
 Architecture: all
-Version: 0.2.0develop-1
 Depends: python-netifaces, python-pika, python-daemon, python-simplejson, python-psutil
 Recommends: hddtemp, lm-sensors
 Description: Computer monitoring
