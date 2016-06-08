@@ -6,8 +6,7 @@ from queue import Queue
 from exceptions import ConnectionException
 
 class WorkerThread(Thread):
-    def __init__(self, interval, worker, config):
-        self._worker = worker
+    def __init__(self, interval, config):
         self._config = config
         self._running = False
         self._interval = interval
@@ -32,7 +31,7 @@ class WorkerThread(Thread):
 
     def loop(self):
         if self._counter == self._interval:
-            self.send_packet(self._worker(self._config))
+            self.send_packet(self.work())
             self._counter = 0
         else:
             time.sleep(1)
@@ -51,4 +50,8 @@ class WorkerThread(Thread):
 
     def running(self):
         return self._running
+
+    def work(self):
+        raise NotImplementedError()
+
 

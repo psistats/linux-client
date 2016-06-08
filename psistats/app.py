@@ -17,91 +17,23 @@ from psistats import libsensors
 from psistats import hdd
 from psistats.libsensors import Sensors
 from psistats.workerThread import WorkerThread
-
-def ipaddr(appConfig):
-    return {
-        'ipaddr': net.get_ipaddrs()
-    }
-
-def mem(appConfig):
-    return {
-        'mem': system.get_mem_usage()
-    }
-
-def hddspace(appConfig):
-    return {
-        'hddspace': hdd.get_hdd_space()
-    }
-
-def hddtemps(appConfig):
-    return {
-        'hddtemps': hdd.get_hdd_temps(appConfig['hddtemp']['hostname'], appConfig['hddtemp']['port'])
-    }
-
-def cpu(appConfig):
-    return {
-        'cpu': system.get_cpu_usage(True)
-    }
-     
-
-
-
-def sensors(appConfig):
-
-    if hasattr(sensors, 'libsensor') == False:
-
-        s = Sensors()
-        s.init()
-        for chipName in appConfig['sensors']['devices']:
-            print "chipName: %s" % chipName
-            s.add_chip(chipName)
-
-        setattr(sensors, 'libsensor', s)
-
-
-    devices = {}
-
-    for chipName in appConfig['sensors']['devices'].iterkeys():
-        chip = appConfig['sensors']['devices'][chipName]
-
-        if chipName not in devices:
-            devices[chipName] = {}
-
-        for featureName in chip.iterkeys():
-            v, unit = sensors.libsensor.get_value(chipName, featureName)
-            devices[chipName][featureName] = {
-                'label': chip[featureName],
-                'value': v,
-                'unit': unit
-            }
-    return {
-        'sensors': devices
-    }
-
-
-def hddspace(appConfig):
-
-    devices = hdd.get_hdds()
-
-    deviceSpaces = {}
-
-    for device in devices:
-        deviceSpaces[device] = hdd.get_hdd_space(device)
-
-    return {
-        'hddspace': deviceSpaces
-    }
+from psistats.workers.cpu import CpuWorker
+from psistats.workers.mem import MemWorker
+from psistats.workers.ipaddr import IPAddrWorker
+from psistats.workers.hddspace import HddSpaceWorker
+from psistats.workers.hddtemp import HddTempWorker
+from psistats.workers.sensors import SensorsWorker
 
     
 class App(object):
 
     reporters = [
-        ('ipaddr', ipaddr),
-        ('mem', mem),
-        ('sensors', sensors),
-        ('cpu', cpu),
-        ('hddspace', hddspace),
-        ('hddtemp', hddtemps)
+        ('ipaddr', IPAddrWorker),
+        ('mem', MemWorker),
+        ('sensors', SensorsWorker),
+        ('cpu', CpuWorker),
+        ('hddspace', HddSpaceWorker),
+        ('hddtemp', HddTempWorker)
     ]
 
     def __init__(self, config):
@@ -164,8 +96,8 @@ class App(object):
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
         
         try:
-            for reporterName, reporterCb in self.reporters:
-                self._reporterThreads[reporterName] = WorkerThread(self.config[reporterName]['interval'], reporterCb, self.config)
+            for reporterName, worker in self.reporters:
+                self._reporterThreads[reporterName] = worker(self.config[reporterName]['interval'], self.config)
 
                 try:
                     self._reporterThreads[reporterName].start()

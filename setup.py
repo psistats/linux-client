@@ -9,13 +9,14 @@ setup(
     author="Alex Dowgailenko",
     author_email="adow@psikon.com",
     license="MIT",
-    packages=['psistats', 'psistats.libsensors', 'psistats.libsensors.lib', 'psistats.hdd'],
+    packages=['psistats', 'psistats.libsensors', 'psistats.libsensors.lib', 'psistats.hdd', 'psistats.workers'],
     platforms=['unix','linux'],
     package_dir={
         'psistats': 'psistats', 
         'psistats.hdd': 'psistats/hdd',
         'psistats.libsensors': 'psistats/libsensors',
-        'psistats.libsensors.lib': 'psistats/libsensors/lib'
+        'psistats.libsensors.lib': 'psistats/libsensors/lib',
+        'psistats.workers': 'psistats/workers'
     },
     data_files=[('etc', ['etc/psistats.conf'])],
     zip_safe=False,
