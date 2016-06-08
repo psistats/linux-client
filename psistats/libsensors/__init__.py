@@ -7,10 +7,10 @@ from psistats.libsensors.lib.sensors import SensorsError
 
 __all__ = ['Sensors', 'CantReadSensor']
 
-class CantReadSensor(Exception):
+class CantReadSensor(SensorsError):
     """Thrown when a sensor can not be read"""
     def __init__(self, *args, **kwargs):
-        Exception.__init__(self, *args, **kwargs)
+        SensorsError.__init__(self, *args, **kwargs)
 
 
 class Sensors(object):
