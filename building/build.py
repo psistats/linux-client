@@ -46,10 +46,6 @@ if len(sys.argv) > 1:
 
 os.chdir(projectdir)
 
-if os.path.exists('env-build') == False:
-    execute_cmd(['virtualenv', 'env-build'])
-
-execfile('env-build/bin/activate_this.py', dict(__file__='env-build/bin/activate_this.py'))
 execute_cmd(['pip','install','stdeb'])
 execute_cmd(['python', 'setup.py', 'sdist'])
 execute_cmd(['python', 'setup.py', '--command-packages=stdeb.command','sdist_dsc','--debian-version=%s' % buildnumber])

@@ -42,5 +42,10 @@ setup(
         'console_scripts': [
             'psistats = psistats.cli:main'
         ]
+    },
+    options={
+        'build_scripts': {
+            'executable': '/usr/bin/env python'
+        }
     }
 )
