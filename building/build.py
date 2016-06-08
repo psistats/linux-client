@@ -81,7 +81,7 @@ with open('deb_dist/%s-%s/debian/control' % (name, version), 'w') as f:
 """
 
 os.chdir('deb_dist/%s-%s' % (name, version))
-# execute_cmd(['dpkg-buildpackage', '-us', '-uc'])
+execute_cmd(['dpkg-buildpackage', '-us', '-uc'])
 
 os.chdir(projectdir)
-# execute_cmd(['mv', 'deb_dist/%s_%s-%s_all.deb' % (name, version, buildnumber),'dist/'])
+execute_cmd(['mv', 'deb_dist/%s_%s-%s_all.deb' % (name, version, buildnumber),'dist/'])
