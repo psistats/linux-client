@@ -1,5 +1,5 @@
 import psutil
-from psistats.hdd import temp
+from psistats.hdd import hddtemp
 
 def get_hdd_space(device):
     return psutil.disk_usage(device).percent
@@ -12,5 +12,5 @@ def get_hdds():
     return disks
 
 def get_hdd_temps(ip, port):
-    raw = temp.get_hddtemp(ip, port)
-    return temp.parse_hddtemp(raw)
+    raw = hddtemp.get_hddtemp(ip, port)
+    return hddtemp.parse_hddtemp(raw)
