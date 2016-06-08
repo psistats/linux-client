@@ -17,7 +17,7 @@ setup(
         'psistats.libsensors': 'psistats/libsensors',
         'psistats.libsensors.lib': 'psistats/libsensors/lib'
     },
-    data_files=[('share/psistats', ['psistats.conf'])],
+    data_files=[('etc', ['etc/psistats.conf'])],
     zip_safe=False,
     tests_require=[
         'pytest-cov',

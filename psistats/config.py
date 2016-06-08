@@ -172,10 +172,14 @@ def get_linux_config_file():
 
     if os.path.isfile(cwd + "/" + CONF_FILE):
         path = cwd + "/" + CONF_FILE
+    elif os.path.isfile(cwd + "/etc/" + CONF_FILE):
+        path = cwd + "/etc/" + CONF_FILE
     elif os.path.isfile(get_homedir_config_file()):
         path = get_homedir_config_file()
-    elif os.path.isfile("/etc/psistats/" + CONF_FILE):
-        path = "/etc/psistats/" + CONF_FILE
+    elif os.path.isfile("/etc/" + CONF_FILE):
+        path = "/etc/" + CONF_FILE
+    elif os.path.isfile("/usr/etc/" + CONF_FILE):
+        path = "/usr/etc/" + CONF_FILE
     elif os.path.isfile('/usr/local/share/psistats/' + CONF_FILE):
         path = '/usr/local/share/psistats/' + CONF_FILE
     elif os.path.isfile('/usr/share/psistats/' + CONF_FILE):

@@ -62,12 +62,26 @@ execute_cmd(['cp', 'debian2/psistats.upstart', 'deb_dist/%s-%s/debian/psistats.u
 execute_cmd(['cp', 'debian2/psistats.postinst', 'deb_dist/%s-%s/debian/psistats.postinst' % (name, version)])
 execute_cmd(['cp', 'debian2/conffiles', 'deb_dist/%s-%s/debian/conffiles' % (name, version)])
 execute_cmd(['cp', 'debian2/control', 'deb_dist/%s-%s/debian/control' % (name, version)])
+execute_cmd(['cp', 'debian2/rules', 'deb_dist/%s-%s/debian/rules' % (name, version)])
 
-with open('deb_dist/%s-%s/debian/control' % (name, version), 'a') as f:
-    f.write('Version: %s' % debversion)
+"""
+newcontent = []
+with open('deb_dist/%s-%s/debian/control' % (name, version)) as f:
+    
+    found = False
+
+    for line in f.readlines():
+        if line == "\n" and found == False:
+            newcontent.append('Version: %s\n' % debversion)
+            found = True
+        else:
+            newcontent.append(line)
+with open('deb_dist/%s-%s/debian/control' % (name, version), 'w') as f:
+    f.write(''.join(newcontent))
+"""
 
 os.chdir('deb_dist/%s-%s' % (name, version))
-execute_cmd(['dpkg-buildpackage', '-us', '-uc'])
+# execute_cmd(['dpkg-buildpackage', '-us', '-uc'])
 
 os.chdir(projectdir)
-execute_cmd(['mv', 'deb_dist/%s_%s-%s_all.deb' % (name, version, buildnumber),'dist/'])
+# execute_cmd(['mv', 'deb_dist/%s_%s-%s_all.deb' % (name, version, buildnumber),'dist/'])
