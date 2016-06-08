@@ -46,6 +46,10 @@ if len(sys.argv) > 1:
 
 os.chdir(projectdir)
 
+if os.path.exists('env-build') == False:
+    execute_cmd(['virtualenv', 'env-build'])
+
+execfile('env-build/bin/activate_this.py', dict(__file__='env-build/bin/activate_this.py'))
 execute_cmd(['pip','install','stdeb'])
 execute_cmd(['python', 'setup.py', 'sdist'])
 execute_cmd(['python', 'setup.py', '--command-packages=stdeb.command','sdist_dsc','--debian-version=%s' % buildnumber])
@@ -55,12 +59,15 @@ name, version = dist_metadata()
 outnl("Package: %s" % name)
 outnl("Version: %s" % version)
 
+execute_cmd(['ln', '-s', '%s/deb_dist/%s-%s' % (projectdir, name, version), 'deb_dist/%s' % (name)])
+
 execute_cmd(['cp', 'debian2/psistats.init', 'deb_dist/%s-%s/debian/psistats.init' % (name, version)])
 execute_cmd(['cp', 'debian2/psistats.upstart', 'deb_dist/%s-%s/debian/psistats.upstart' % (name, version)])
 execute_cmd(['cp', 'debian2/psistats.postinst', 'deb_dist/%s-%s/debian/psistats.postinst' % (name, version)])
+execute_cmd(['cp', 'debian2/conffiles', 'deb_dist/%s-%s/debian/conffiles' % (name, version)])
 
-os.chdir('deb_dist/%s-%s' % (name, version))
-execute_cmd(['dpkg-buildpackage', '-us', '-uc'])
+# os.chdir('deb_dist/%s-%s' % (name, version))
+# execute_cmd(['dpkg-buildpackage', '-us', '-uc'])
 
-os.chdir(projectdir)
-execute_cmd(['mv', 'deb_dist/%s_%s-%s_all.deb' % (name, version, buildnumber),'dist/'])
+# os.chdir(projectdir)
+# execute_cmd(['mv', 'deb_dist/%s_%s-%s_all.deb' % (name, version, buildnumber),'dist/'])

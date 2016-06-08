@@ -3,11 +3,12 @@ import os
 import sys
 import shutil
 import glob
+import fnmatch
 
 mydir = os.path.dirname(os.path.realpath(__file__))
 projectdir = os.path.realpath(mydir + "/../")
 
-dirs = ['dist','deb_dist','build','.tox','.eggs','covenv','.cache','psistats.egg-info']
+dirs = ['dist','deb_dist','build','.tox','.eggs','covenv','.cache','psistats.egg-info','env-build']
 files = ['psistats-0.2.0develop.tar.gz']
 
 def out(msg):
@@ -30,10 +31,9 @@ for f in files:
     except OSError:
         pass
 
-for f in glob.glob('./*/*.pyc'):
-    try:
+for root, dirnames, filenames in os.walk(projectdir):
+    for fn in fnmatch.filter(filenames, '*.pyc'):
+        f = os.path.join(root, fn)
         out(f)
         os.remove(f)
-    except OSError:
-        pass
 

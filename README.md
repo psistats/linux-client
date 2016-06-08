@@ -221,7 +221,7 @@ class=logging.Formatter
 Changelog
 ---------
 v0.2.0
-- New multithreaded architecture
+- New multithreaded (well, as mt as python can be) architecture
 - Can interface with hddtemp and libsensors
 - Can control timer for any reporter
 - Various code improvements
