@@ -4,7 +4,7 @@ from psistats.libsensors import Sensors
 class SensorsWorker(WorkerThread):
 
     def __init__(self, interval, config):
-        super(WorkerThread.self).__init__(interval, config)
+        super(WorkerThread, self).__init__(interval, config)
         self._sensors = None
 
     def start(self):

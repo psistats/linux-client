@@ -1,8 +1,3 @@
-'''
-Created on Jun 21, 2014
-
-@author: v0idnull
-'''
 import time
 import logging
 import logging.config as loggingconfig
@@ -23,9 +18,15 @@ from psistats.workers.ipaddr import IPAddrWorker
 from psistats.workers.hddspace import HddSpaceWorker
 from psistats.workers.hddtemp import HddTempWorker
 from psistats.workers.sensors import SensorsWorker
+from psistats.workers.uptime import UptimeWorker
 
     
 class App(object):
+    """
+    Application Class
+
+    This is the main loop
+    """
 
     reporters = [
         ('ipaddr', IPAddrWorker),
@@ -33,7 +34,8 @@ class App(object):
         ('sensors', SensorsWorker),
         ('cpu', CpuWorker),
         ('hddspace', HddSpaceWorker),
-        ('hddtemp', HddTempWorker)
+        ('hddtemp', HddTempWorker),
+        ('uptime', UptimeWorker)
     ]
 
     def __init__(self, config):
@@ -63,60 +65,78 @@ class App(object):
         logger = logging.getLogger("psistats")
         self.logger = logger
 
-    def init_queue(self):
-        self.queue = queue.Queue(self.config['server']['url'], self.config['queue'], self.config['exchange'])
-        return self.queue
-
-    def _send_packet(self, packet):
-        packet_json = json.dumps(packet)
-        self.logger.debug('Sending packet: %s' % packet_json)
-        self.queue.send(packet_json)
-
     def _loop(self):
         while self._running == True:
             for reporterName, reporterThread in self._reporterThreads.iteritems():
                 if reporterThread.running() == False:
-                    self.logger.debug('Thread %s is not running. Restarting it' % reporterName)
-                    reporterThread.start()
+                    self.logger.debug('Starting thread %s' % reporterName)
+                    self.startWorkerThread(reporterThread)
 
             time.sleep(10)
 
+
+    def _init_workers(self):
+        for reporterName, worker in self.reporters:
+
+            if reporterName not in self.config:
+                self.logger.warn('Reporter %s not in configuration' % reporterName)
+                continue
+
+            if 'enabled' not in self.config[reporterName] or self.config[reporterName]['enabled'] == False:
+                self.logger.warn('Reporter %s is disabled' % reporterName)
+                continue
+
+
+            workerThread = worker(self.config[reporterName]['interval'], self.config)
+            self._reporterThreads[reporterName] = workerThread
+
+
+
+    def isRunning(self):
+        return self._running
+
+
     def startWorkerThread(self, thread):
+        """
+        Starts a worker thread.
+
+        Each worker thread is expected to have its own connection to
+        the message queue. If a ConnectionException is raised, it is
+        logged and ignored.
+        """
         try:
             thread.start()
         except ConnectionException as e:
             self.logger.error('Error starting thread')
             self.logger.exception(e)
 
-    def run(self):
+
+    def stop(self):
+        for reporter in self._reporterThreads.iterkeys():
+            self.logger.debug('Stopping thread: %s', reporter)
+            reporterThread = self._reporterThreads[reporter]
+            reporterThread.stop()
+
+        self._running = False
+
+
+    def start(self):
         self.logger.info("Starting")
-
         hostname = net.get_hostname()
-
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
-        
+        self._init_workers()
+        self._running = True
+        self.run()
+
+
+    def run(self):
         try:
-            for reporterName, worker in self.reporters:
-                self._reporterThreads[reporterName] = worker(self.config[reporterName]['interval'], self.config)
-
-                try:
-                    self._reporterThreads[reporterName].start()
-                except ConnectionException as e:
-                    self.logger.error('Error starting thead: %s' % reporterName)
-                    self.logger.exception(e)
-
-            self._running = True
             self._loop()
         except KeyboardInterrupt:
             self.logger.warn("Received keyboard interrupt")
+            self.stop()
         except:
             self.logger.critical("Unhandled exception")
             self.logger.exception(sys.exc_info()[1])
-        finally:
-            self._running = False
-            self.logger.warn("Shutting down")
-            for reporter in self._reporterThreads.iterkeys():
-                self.logger.debug('Stopping thread: %s', reporter)
-                reporterThread = self._reporterThreads[reporter]
-                reporterThread.stop()
+            self.stop()
 

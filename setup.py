@@ -30,7 +30,8 @@ setup(
         'python-daemon',
         'simplejson',
         'psutil',
-        'netifaces'
+        'netifaces',
+        'lockfile'
     ],
     scripts=[
         'bin/psistats'

@@ -5,13 +5,24 @@ import os
 import psutil
 import time
 import stat
-
+import lockfile
+import daemon
 from daemon import runner
 
 from psistats import app
 from psistats import config
 from psistats import libsensors
 from psistats.libsensors.lib.sensors import SensorsError
+
+
+def init_context(config):
+    context = daemon.DaemonContext(
+        pidfile=lockfile.FileLock(config['app']['pidfile']),
+        stdin=config['app']['stdin_path'],
+        stdout=config['app']['stdout_path'],
+        stderr=config['app']['stderr_path']
+    )
+    return context
 
 def out(msg):
     """
@@ -42,7 +53,7 @@ def start_local():
     """
     out('[x] Starting Psistats service locally... ')
     psistatsApp = app.App(config.get_config())
-    psistatsApp.run()    
+    psistatsApp.start()
     
 
 def start():
@@ -50,7 +61,8 @@ def start():
     Starts psistats as a background service"
     """
     out('[x] Starting Psistats service... ')
-    psistatsApp = app.App(config.get_config())
+    conf = config.get_config()
+    psistatsApp = app.App(conf)
 
     if is_running(psistatsApp.pidfile_path) == True:
         out("Already running!\n")
@@ -58,8 +70,9 @@ def start():
         newpid = os.fork()
 
         if newpid == 0:
-            daemon_runner = runner.DaemonRunner(psistatsApp)
-            daemon_runner.do_action()
+
+            with init_context(conf):
+                psistatsApp.start()
 
             sys.exit()
         else:
