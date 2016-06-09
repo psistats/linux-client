@@ -10,6 +10,6 @@ Vcs-Browser: https://github.com/psistats/linux-client
 
 Package: psistats
 Architecture: all
-Depends: python-netifaces, python-pika, python-daemon, python-simplejson, python-psutil
+Depends: python-netifaces, python-pika, python-daemon, python-simplejson, python-psutil, python-lockfile
 Suggests: hddtemp, lm-sensors
 Description: Computer monitoring
