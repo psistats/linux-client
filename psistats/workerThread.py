@@ -2,8 +2,8 @@ import time
 from threading import Thread
 import logging
 import json
-from queue import Queue
-from exceptions import ConnectionException
+from psistats.queue import Queue
+from psistats.exceptions import ConnectionException
 
 class WorkerThread(Thread):
     def __init__(self, interval, config):
