@@ -3,5 +3,15 @@ from psistats import hdd
 
 class HddSpaceWorker(WorkerThread):
     
+    def start(self):
+        self._hdds = hdd.get_hdds()
+        super(HddSpaceWorker, self).start()
+
     def work(self):
-        return {'hddspace': hdd.get_hdd_space()} 
+        obj = {'hddspace': []}
+        for drive in self._hdds:
+            drvobj = {}
+            drvobj[drive] = hdd.get_hdd_space(drive)
+            obj['hddspace'].append(drvobj)
+
+        return obj
