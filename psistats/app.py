@@ -112,10 +112,9 @@ class App(object):
 
 
     def stop(self):
-        for reporter in self._reporterThreads.iterkeys():
-            self.logger.debug('Stopping thread: %s', reporter)
-            reporterThread = self._reporterThreads[reporter]
-            reporterThread.stop()
+        for reporterName, worker in self._reporterThreads:
+            self.logger.debug('Stopping thread: %s', reporterName)
+            worker.stop()
 
         self._running = False
 
