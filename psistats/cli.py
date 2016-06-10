@@ -51,7 +51,11 @@ def start_local():
     """
     Starts psistats in the current terminal
     """
-    out('[x] Starting Psistats service locally... ')
+    out('[x] Starting Psistats service locally...\n')
+    
+    conf = config.get_config()
+    out('[x] Config file: %s\n' % conf.filename)
+
     psistatsApp = app.App(config.get_config())
     psistatsApp.start()
     
