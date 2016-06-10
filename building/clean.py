@@ -8,7 +8,7 @@ import fnmatch
 mydir = os.path.dirname(os.path.realpath(__file__))
 projectdir = os.path.realpath(mydir + "/../")
 
-dirs = ['dist','deb_dist','build','.tox','.eggs','covenv','.cache','psistats.egg-info','env-build']
+dirs = ['dist','deb_dist','build','.tox','.eggs','covenv','.cache','psistats.egg-info','env-build','testenv']
 files = ['psistats-0.2.0develop.tar.gz']
 
 def out(msg):
