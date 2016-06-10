@@ -4,16 +4,16 @@ from psistats.libsensors import Sensors
 class SensorsWorker(WorkerThread):
 
     def __init__(self, interval, config):
-        super(WorkerThread, self).__init__(interval, config)
+        super(SensorsWorker, self).__init__(interval, config)
         self._sensors = None
 
     def start(self):
         if self._sensors == None:
             self._sensors = Sensors()
-            s.init()
+            self._sensors.init()
             for chipName in self._config['sensors']['devices']:
-                s.add_chip(chipName)
-        return super(WorkerThread, self).start()
+                self._sensors.add_chip(chipName)
+        return super(SensorsWorker, self).start()
 
     def work(self):
         devices = {}
@@ -36,5 +36,5 @@ class SensorsWorker(WorkerThread):
 
     def stop(self):
         self._sensors.cleanup()
-        super(WorkerThread, self).stop()
+        super(SensorsWorker, self).stop()
 
