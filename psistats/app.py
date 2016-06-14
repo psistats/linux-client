@@ -2,15 +2,9 @@ import time
 import logging
 import logging.config as loggingconfig
 import sys
-import simplejson as json
 
-from psistats.exceptions import MessageNotSentException, ConnectionException, QueueException, ExchangeException
-from psistats import queue
 from psistats import net
-from psistats import system
-from psistats import libsensors
-from psistats import hdd
-from psistats.libsensors import Sensors
+from psistats.exceptions import ConnectionException
 from psistats.workerThread import WorkerThread
 from psistats.workers.cpu import CpuWorker
 from psistats.workers.mem import MemWorker
@@ -42,7 +36,6 @@ class App(object):
     def __init__(self, config):
         self.config = config
         self.logger = None
-        self._events = None
 
         self.pidfile_path = config['app']['pidfile']
         self.pidfile_timeout = config['app']['pidfile_timeout']
@@ -51,11 +44,9 @@ class App(object):
         self.stderr_path = config['app']['stderr_path']
         
         self._running = False
-
-        self._connection = None
-        self._channel = None
-
+        self._reporters_initialized = False
         self._reporterThreads = {}
+
 
     def _init_logger(self):
         logger_config = self.config['logging']
@@ -65,7 +56,10 @@ class App(object):
         self.logger = logger
 
  
-    def _init_workers(self):
+    def init_reporters(self):
+        """
+        Initialize the configured reporters
+        """
         for reporterName, worker in self.reporters:
 
             if reporterName not in self.config:
@@ -79,24 +73,35 @@ class App(object):
 
             workerThread = worker(self.config[reporterName]['interval'], self.config)
             self._reporterThreads[reporterName] = workerThread
+        self._reporters_initialized = True
        
 
     def work(self):
+        """
+        Do an iteration of work
+        """
+        if self._reporters_initialized == False:
+            self.init_reporters()
+
         for reporterName in self._reporterThreads:
             reporter = self._reporterThreads[reporterName]
             if reporter.running() == False:
                 self.logger.debug('Starting thread %s' % reporterName)
-                self.startWorkerThread(reporter)
+                self.start_reporter_thread(reporter)
 
-    def isRunning(self):
+
+    def is_running(self):
+        """
+        Checks if application is running or not
+        """
         return self._running
 
 
-    def startWorkerThread(self, thread):
+    def start_reporter_thread(self, thread):
         """
-        Starts a worker thread.
+        Starts a reporter thread.
 
-        Each worker thread is expected to have its own connection to
+        Each reporter thread is expected to have its own connection to
         the message queue. If a ConnectionException is raised, it is
         logged and ignored.
         """
@@ -108,6 +113,9 @@ class App(object):
 
 
     def stop(self):
+        """
+        Stop running the application and all reporter threads
+        """
         self._running = False
 
         for reporterName in self._reporterThreads:
@@ -116,21 +124,35 @@ class App(object):
 
 
     def start(self):
+        """
+        Start running the application all reporter threads
+        """
         self._init_logger()
         self.logger.info("Starting")
 
         hostname = net.get_hostname()
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
 
-        self._init_workers()
-
         self.run()
 
 
+    def reporter_running(self, reporterName):
+        """
+        Check if a reporter of a specific name is running
+        """
+        if reporterName not in self._reporterThreads:
+            return False
+
+        return self._reporterThreads[reporterName].running()
+
+
     def run(self):
+        """
+        Run the application loop
+        """
         self._running = True
         try:
-            while self.isRunning() == True:
+            while self.is_running() == True:
                 self.work()
                 time.sleep(10)
             self.stop()

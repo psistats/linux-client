@@ -34,20 +34,19 @@ class AppTest(unittest.TestCase):
         self.confobj = Config(conffile)
 
     @mock.patch('psistats.app.net.get_hostname', side_effect=fake_get_hostname)
-    @mock.patch('psistats.app.App.isRunning', side_effect=False)
+    @mock.patch('psistats.app.App.is_running', side_effect=False)
     def test_queue_setup(self, gh, lp):
         a = App(self.confobj)
         a.start()
 
         self.assertEqual(a.config['queue']['name'], 'psistats.localhost')
-    
-    @mock.patch('psistats.app.App.isRunning', side_effect=False)
-    def test_run_mixedWorkers(self, lp):
+   
+    def test_init_mixedWorkers(self):
         a = App(self.confobj)
         a.reporters.append(('enabled_reporter', FakeWorker))
         a.reporters.append(('disabled_reporter', FakeWorker))
-
-        a.start()
+        a._init_logger()
+        a.init_reporters()
         self.assertIsInstance(a._reporterThreads['enabled_reporter'], FakeWorker)
         self.assertEqual('disabled_reporter' in a._reporterThreads, False)
 
@@ -58,16 +57,19 @@ class AppTest(unittest.TestCase):
         with mock.patch.object(App, 'stop', wraps=a.stop) as mockStop:
             a.start()
 
-            self.assertEqual(a.isRunning(), False)
+            self.assertEqual(a.is_running(), False)
             self.assertEqual(mockStop.called, True)
 
-    @mock.patch('psistats.app.App.stop')
-    @mock.patch('psistats.app.time.sleep')
-    def test_startThreads(self, stop, mockTimeSleep):
+
+    def test_startThreads(self):
         a = App(self.confobj)
         a.reporters.append(('enabled_reporter', FakeWorker))
 
+        a._init_logger() 
+        a.work()
+        self.assertEqual(a.reporter_running('enabled_reporter'), True)
 
+        """
         class MockIsRunning(object):
 
             def __init__(self, app):
@@ -93,5 +95,6 @@ class AppTest(unittest.TestCase):
             a.reporters.append(('enabled_reporter', FakeWorker))
             a.start()
             
-        assert mockIsRunning.threadRan == True
+        self.assertEqual(mockIsRunning.threadRan, True)
+        """
 
