@@ -1,37 +1,40 @@
 Psistats Linux Client
 =====================
 
-Python linux client that sends some computer statistics to a RabbitMQ server.
+Python linux client that sends computer statistics to an AMQP-compatible message queue.
 
-This is currently beta software.
+Version 0.2.0 is currently in alpha. Features or functionality may change. Assume bugs exist.
 
-Format
-------
-```javascript
-{
-    "hostname": "my-computer",
-    "uptime": 130583.1,
-    "cpu": 24.1,
-    "mem": 34.1,
-    "ipaddr": ['192.168.1.101','192.168.1.102']
-    "cpu_temp": 72.4
-}
-```
+Purpose
+-------
 
-Uptime is in seconds.
+There are a wide variety of reporting tools that can report any number of statistics in some form or fashion. The problem with most of them is that they tend to be bundled within larger sys admin tool sets, offer persistance of reports when you may not want them, or otherwise contain any number of features you may not want.
 
-Uptime and IP Addresses are sent at a longer rate than cpu and memory however that rate is configurable.
+Psistats attempts to separate reporting into it's own isolated service. By sending data to a message queue, any number of applications that consume the reports can be made separately, including storing information into databases, sending alerts, wall displays, etc.
 
-CPU Temperature is enabled by default, but may not work on all systems. It is reported in degrees celsius.
+If you are looking for an all-in-one solution to reporting, this may not be the tool for you.
+If you are looking for desktop widgets for one computer, then [Conky](https://github.com/brndnmtthws/conky) may be for you.
+
+If you are looking to make custom, purpose-made displays to report details on one or more machines, then this tool fits this role perfectly.
+
+
+Requirements
+------------
+
+1. Python 2.7 or Python 3.2+ (tested on Python 3.5)
+2. An amqp server. Tested with [RabbitMQ](http://www.rabbitmq.com/)
+3. If you want to report your various computer sensors, then you need libsensors installed
+4. If you want to report the temperatures of your hard drive, then you need hddtemp installed and running as a server.
 
 
 Installation (From Source):
 ---------------------------
 
-1. python setup.py install
-2. edit psistats.conf to your liking
-3. run psistats start to start in the background, or run psistats start-local to run in console mode.
+1. $ python setup.py install
+2. $ sudo ln -s /usr/bin/psistats bin/psistats
+3. $ sudo cp etc/psistats /etc/psistats
 
+Note, this won't start psistats on boot, but the exectuable is compatible with init scripts, upstart, etc.
 
 Installation (Debian / Ubuntu):
 -----------------------------------------------------------
@@ -45,7 +48,29 @@ $ sudo apt-get update
 $ sudo apt-get install psistats
 ```
 
-These builds could be unstable or buggy. Reporting bugs are encouraged ;)
+Psistats will automatically start on boot.
+
+
+Usage
+-----
+
+After configuring psistats, you may start it in a console:
+
+```
+$ psistats start-local
+```
+
+Or you can start it in the background:
+
+```
+$ psistats start
+```
+
+Psistats will start sending messages to your message queue server right away. Each reporter sends its own messages on their own intervals. Refer to the configuration documentation below.
+
+Messages are in JSON format. You can enable debug logging to see the JSON strings being sent.
+
+Not all reporters need to be run at 1 second intervals. Running psistats in a console with debug logging enabled, you will be able to see if some reporter intervals can be increased.
 
 
 Configuration
@@ -76,12 +101,6 @@ To view a list of available sensors run:
 $ psistats sensors
 ```
 
-or
-
-```
-$ python psistats.py sensors
-```
-
 
 ```
 [sensors]
@@ -97,11 +116,12 @@ devices[] = (CPU Core 1, coretemp-isa-0000.Core 0)
 * **interval:** Number of seconds between reports
 * **devices[]:** A list of label/sensor name
 
-The list of devices are in the format of (LABEL, CHIP.FEATURE).
+The list of devices are in the format of (LABEL, CHIP.FEATURE)
+
 
 ###HDD Temperature
 
-Reports temperature data of your hard drives, if available.
+Reports temperature data of your hard drives, if available. 
 
 Requires hddtemp to be installed, and running as a daemon.
 
