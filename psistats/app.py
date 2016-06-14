@@ -82,11 +82,11 @@ class App(object):
        
 
     def work(self):
-        for reporterName, reporterThread in self._reporterThreads.iteritems():
-            if reporterThread.running() == False:
+        for reporterName in self._reporterThreads:
+            reporter = self._reporterThreads[reporterName]
+            if reporter.running() == False:
                 self.logger.debug('Starting thread %s' % reporterName)
-                self.startWorkerThread(reporterThread)
-
+                self.startWorkerThread(reporter)
 
     def isRunning(self):
         return self._running
@@ -130,7 +130,7 @@ class App(object):
     def run(self):
         self._running = True
         try:
-            while self.isRunning():
+            while self.isRunning() == True:
                 self.work()
                 time.sleep(10)
             self.stop()

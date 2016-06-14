@@ -1,5 +1,5 @@
 import unittest, mock
-import os
+import os, sys
 from psistats.app import App
 from psistats.config import Config
 
@@ -8,15 +8,12 @@ class FakeWorker():
         self._running = False
 
     def start(self):
-        print 'STARTING'
         self.run()
 
     def run(self):
-        print 'RUNNING'
         self._running = True
 
     def stop(self):
-        print 'STOPPING'
         self._running = False
 
     def running(self):
@@ -71,20 +68,30 @@ class AppTest(unittest.TestCase):
         a.reporters.append(('enabled_reporter', FakeWorker))
 
 
-        def mockIsRunning():
-            if hasattr(mockIsRunning, 'run') == False:
-                print 'FIRST ITERATION'
-                # first iteration
-                setattr(mockIsRunning, 'run', True)
-                return True
-            else:
-                print 'SECOND ITERATION'
-                # second iteration
-                self.runningThread = a._reporterThreads['enabled_reporter'].running()
-                return False
+        class MockIsRunning(object):
+
+            def __init__(self, app):
+                self.running = False
+                self.iteration = 0
+                self.app = app
+                self.threadRan = False
+
+            def __call__(self):
+                self.iteration += 1
+
+                if self.iteration == 2:
+                    sys.stdout.write('ITERATION #2\n')
+                    self.threadRan = self.app._reporterThreads['enabled_reporter'].running()
+                    return False
+                else:
+                    sys.stdout.write('ITERATION #1\n')
+                    return True
+
+        mockIsRunning = MockIsRunning(a)
 
         with mock.patch.object(a, 'isRunning', side_effect=mockIsRunning):
             a.reporters.append(('enabled_reporter', FakeWorker))
             a.start()
-            self.assertEqual(self.runningThread, True)
+            
+        assert mockIsRunning.threadRan == True
 

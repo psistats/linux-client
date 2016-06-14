@@ -17,13 +17,13 @@ class SensorsWorker(WorkerThread):
 
     def work(self):
         devices = {}
-        for chipName in self._config['sensors']['devices'].iterkeys():
+        for chipName in self._config['sensors']['devices']:
             chip = self._config['sensors']['devices'][chipName]
 
             if chipName not in devices:
                 devices[chipName] = {}
 
-            for featureName in chip.iterkeys():
+            for featureName in chip:
                 v, unit = self._sensors.get_value(chipName, featureName)
                 devices[chipName][featureName] = {
                     'label': chip[featureName],
