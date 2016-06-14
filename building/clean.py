@@ -38,6 +38,7 @@ for root, dirnames, filenames in os.walk(projectdir):
     else:
         for fn in filenames:
             if fn.endswith('.pyc'):
+                f = os.path.join(root, fn)
                 out(f)
                 os.remove(f)
 
