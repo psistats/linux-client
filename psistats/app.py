@@ -52,8 +52,6 @@ class App(object):
         
         self._running = False
 
-        self._init_logger()
-
         self._connection = None
         self._channel = None
 
@@ -66,16 +64,7 @@ class App(object):
         logger = logging.getLogger("psistats")
         self.logger = logger
 
-    def _loop(self):
-        while self._running == True:
-            for reporterName, reporterThread in self._reporterThreads.iteritems():
-                if reporterThread.running() == False:
-                    self.logger.debug('Starting thread %s' % reporterName)
-                    self.startWorkerThread(reporterThread)
-
-            time.sleep(10)
-
-
+ 
     def _init_workers(self):
         for reporterName, worker in self.reporters:
 
@@ -90,7 +79,13 @@ class App(object):
 
             workerThread = worker(self.config[reporterName]['interval'], self.config)
             self._reporterThreads[reporterName] = workerThread
+       
 
+    def work(self):
+        for reporterName, reporterThread in self._reporterThreads.iteritems():
+            if reporterThread.running() == False:
+                self.logger.debug('Starting thread %s' % reporterName)
+                self.startWorkerThread(reporterThread)
 
 
     def isRunning(self):
@@ -113,25 +108,32 @@ class App(object):
 
 
     def stop(self):
+        self._running = False
+
         for reporterName in self._reporterThreads:
             self.logger.debug('Stopping thread: %s', reporterName)
             self._reporterThreads[reporterName].stop()
 
-        self._running = False
-
 
     def start(self):
+        self._init_logger()
         self.logger.info("Starting")
+
         hostname = net.get_hostname()
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
+
         self._init_workers()
+
         self.run()
 
 
     def run(self):
         self._running = True
         try:
-            self._loop()
+            while self.isRunning():
+                self.work()
+                time.sleep(10)
+            self.stop()
         except KeyboardInterrupt:
             self.logger.warn("Received keyboard interrupt")
             self.stop()
