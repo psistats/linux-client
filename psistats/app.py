@@ -19,7 +19,7 @@ from psistats.workers.hddspace import HddSpaceWorker
 from psistats.workers.hddtemp import HddTempWorker
 from psistats.workers.sensors import SensorsWorker
 from psistats.workers.uptime import UptimeWorker
-
+from psistats.workers.os import OSWorker
     
 class App(object):
     """
@@ -35,7 +35,8 @@ class App(object):
         ('cpu', CpuWorker),
         ('hddspace', HddSpaceWorker),
         ('hddtemp', HddTempWorker),
-        ('uptime', UptimeWorker)
+        ('uptime', UptimeWorker),
+        ('os', OSWorker)
     ]
 
     def __init__(self, config):
@@ -112,9 +113,9 @@ class App(object):
 
 
     def stop(self):
-        for reporterName, worker in self._reporterThreads:
+        for reporterName in self._reporterThreads:
             self.logger.debug('Stopping thread: %s', reporterName)
-            worker.stop()
+            self._reporterThreads[reporterName].stop()
 
         self._running = False
 
@@ -124,11 +125,11 @@ class App(object):
         hostname = net.get_hostname()
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname
         self._init_workers()
-        self._running = True
         self.run()
 
 
     def run(self):
+        self._running = True
         try:
             self._loop()
         except KeyboardInterrupt:

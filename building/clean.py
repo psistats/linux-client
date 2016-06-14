@@ -32,8 +32,12 @@ for f in files:
         pass
 
 for root, dirnames, filenames in os.walk(projectdir):
-    for fn in fnmatch.filter(filenames, '*.pyc'):
-        f = os.path.join(root, fn)
-        out(f)
-        os.remove(f)
+    if root.endswith("__pycache__"):
+        out(root)
+        shutil.rmtree(root)
+    else:
+        for fn in filenames:
+            if fn.endswith('.pyc'):
+                out(f)
+                os.remove(f)
 

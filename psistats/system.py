@@ -1,4 +1,5 @@
 import psutil
+import platform
 
 def get_uptime():
     with open('/proc/uptime', 'r') as f:
@@ -15,4 +16,11 @@ def get_mem_usage():
     vm = psutil.virtual_memory()
     return vm.percent
 
+
+def get_distro():
+    try:
+        linux = platform.linux_distribution()
+        return "%s %s" % (linux[0], linux[1])
+    except:
+        return "%s %s" % (platform.system(), platform.release())
 
