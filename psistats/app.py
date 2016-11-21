@@ -39,7 +39,6 @@ class App(object):
 
         self.pidfile_path = config['app']['pidfile']
         self.pidfile_timeout = config['app']['pidfile_timeout']
-        self.stdin_path = config['app']['stdin_path']
         self.stdout_path = config['app']['stdout_path']
         self.stderr_path = config['app']['stderr_path']
         
@@ -47,8 +46,13 @@ class App(object):
         self._reporters_initialized = False
         self._reporterThreads = {}
 
+        self.init_logger()
 
-    def _init_logger(self):
+
+    def init_logger(self):
+        """
+        Initialize the logger
+        """
         logger_config = self.config['logging']
 
         loggingconfig.dictConfig(logger_config)
@@ -74,6 +78,13 @@ class App(object):
             workerThread = worker(self.config[reporterName]['interval'], self.config)
             self._reporterThreads[reporterName] = workerThread
         self._reporters_initialized = True
+
+    
+    def reporter(self, name):
+        """
+        Get an initialized reporter thread
+        """
+        return self._reporterThreads[name]
        
 
     def work(self):
@@ -127,7 +138,6 @@ class App(object):
         """
         Start running the application all reporter threads
         """
-        self._init_logger()
         self.logger.info("Starting")
 
         hostname = net.get_hostname()
