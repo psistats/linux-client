@@ -3,5 +3,4 @@ include VERSION
 include INSTALL
 include setup.cfg
 include pytest.ini
-include bin/psistats
-include etc/psistats.conf
+include psistats.conf
