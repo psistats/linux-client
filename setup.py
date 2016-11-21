@@ -11,6 +11,7 @@ setup(
     license="MIT",
     packages=['psistats', 'psistats.libsensors', 'psistats.libsensors.lib', 'psistats.hdd', 'psistats.workers'],
     platforms=['unix','linux'],
+    data_files = [("share/psistats", ["psistats.conf"])],
     package_dir={
         'psistats': 'psistats', 
         'psistats.hdd': 'psistats/hdd',
@@ -18,7 +19,6 @@ setup(
         'psistats.libsensors.lib': 'psistats/libsensors/lib',
         'psistats.workers': 'psistats/workers'
     },
-    data_files=[('etc', ['etc/psistats.conf'])],
     zip_safe=False,
     tests_require=[
         'pytest-cov',
@@ -33,9 +33,9 @@ setup(
         'netifaces',
         'lockfile'
     ],
-    scripts=[
-        'bin/psistats'
-    ],
+    entry_points={
+        'console_scripts': ['psistats=psistats.cli:main']
+    },
     options={
         'build_scripts': {
             'executable': '/usr/bin/env python'
