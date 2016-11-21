@@ -2,6 +2,7 @@ import time
 import logging
 import logging.config as loggingconfig
 import sys
+import os
 
 from psistats import net
 from psistats.exceptions import ConnectionException
@@ -133,12 +134,19 @@ class App(object):
             self.logger.debug('Stopping thread: %s', reporterName)
             self._reporterThreads[reporterName].stop()
 
+        os.remove(self.config['app']['pidfile'])
+
 
     def start(self):
         """
         Start running the application all reporter threads
         """
         self.logger.info("Starting")
+
+        pid = os.getpid()
+
+        with open(self.config['app']['pidfile'], 'w') as f:
+            f.write(str(pid))
 
         hostname = net.get_hostname()
         self.config['queue']['name'] = self.config['queue']['prefix'] + '.' + hostname

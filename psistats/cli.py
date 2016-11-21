@@ -31,14 +31,20 @@ def get_args_parser():
 
 
 def init_context(config):
-    out('LOADING CONTEXT\n')
 
-    stream_stdout = open(config['app']['stdout_path'], 'w')
-    stream_stderr = open(config['app']['stderr_path'], 'w')
-    stream_pidfile = lockfile.FileLock(config['app']['pidfile'])
+    if (config['app']['stdout_path'] != ''):
+        stream_stdout = open(config['app']['stdout_path'], 'w')
+    else:
+        stream_stdout = None
+
+    if (config['app']['stderr_path'] != ''):
+        stream_stderr = open(config['app']['stderr_path'], 'w')
+    else:
+        stream_stderr = None
+
+    # stream_pidfile = lockfile.FileLock(config['app']['pidfile'])
 
     context = daemon.DaemonContext(
-        pidfile=stream_pidfile,
         stdout=stream_stdout,
         stderr=stream_stderr
     )
@@ -104,16 +110,19 @@ def start(args):
             out("ok\n")
             out('[x] Config file %s\n' % conf.filename)
 
+
+
 def stop(args):
     """
     Stop psistats
     """
     out('[x] Stopping Psistats service... ')
-    psistats = app.App(config.get_config(args['config']))
+    conf = config.get_config(args['config'])
+#    psistats = app.App(conf)
 
-    if (os.path.isfile(psistats.pidfile_path)):
+    if (os.path.isfile(conf['app']['pidfile'])):
 
-        with open(psistats.pidfile_path) as f:
+        with open(conf['app']['pidfile']) as f:
             pid = int(f.read())
 
             while True:
@@ -127,7 +136,7 @@ def stop(args):
                     time.sleep(1)
                 else:
                     break
-        out("ok\n")
+        out(" ok\n")
     else:
         out("ok\n")
 
