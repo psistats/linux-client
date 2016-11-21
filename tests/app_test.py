@@ -45,9 +45,9 @@ class AppTest(unittest.TestCase):
         a = App(self.confobj)
         a.reporters.append(('enabled_reporter', FakeWorker))
         a.reporters.append(('disabled_reporter', FakeWorker))
-        a._init_logger()
+
         a.init_reporters()
-        self.assertIsInstance(a._reporterThreads['enabled_reporter'], FakeWorker)
+        self.assertIsInstance(a.reporter('enabled_reporter'), FakeWorker)
         self.assertEqual('disabled_reporter' in a._reporterThreads, False)
 
     @mock.patch('psistats.app.App.work', side_effect=fake_loop_keyboardInterrupt)
@@ -65,7 +65,6 @@ class AppTest(unittest.TestCase):
         a = App(self.confobj)
         a.reporters.append(('enabled_reporter', FakeWorker))
 
-        a._init_logger() 
         a.work()
         self.assertEqual(a.reporter_running('enabled_reporter'), True)
 
