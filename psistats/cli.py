@@ -7,6 +7,7 @@ import time
 import stat
 import lockfile
 import daemon
+import argparse
 from daemon import runner
 
 from psistats import app
@@ -14,13 +15,32 @@ from psistats import config
 from psistats import libsensors
 from psistats.libsensors.lib.sensors import SensorsError
 
+def get_args_parser():
+    parser = argparse.ArgumentParser(description='Psistats')
+    parser.add_argument('--version', action='store_true', help='Print out the version')
+    parser.add_argument('--start', action='store_true', help='Start the psistats daemon')
+    parser.add_argument('--stop', action='store_true', help='Stop the psistats daemon')
+    parser.add_argument('--restart', action='store_true', help='Restart the psistats daemon')
+    parser.add_argument('--start-console', action='store_true', help='Start psistats in console')
+    parser.add_argument('--status', action='store_true', help='Get the status of the psistats daemon')
+    parser.add_argument('--sensors', action='store_true', help='Get a list of the available sensors that psistats can use')
+    parser.add_argument('--config', help='Location of configuration file')
+    return parser
+
+
+
 
 def init_context(config):
+    out('LOADING CONTEXT\n')
+
+    stream_stdout = open(config['app']['stdout_path'], 'w')
+    stream_stderr = open(config['app']['stderr_path'], 'w')
+    stream_pidfile = lockfile.FileLock(config['app']['pidfile'])
+
     context = daemon.DaemonContext(
-        pidfile=lockfile.FileLock(config['app']['pidfile']),
-        stdin=config['app']['stdin_path'],
-        stdout=config['app']['stdout_path'],
-        stderr=config['app']['stderr_path']
+        pidfile=stream_pidfile,
+        stdout=stream_stdout,
+        stderr=stream_stderr
     )
     return context
 
@@ -47,47 +67,49 @@ def is_running(pidfile):
         return False
 
 
-def start_local():
+def start_local(args):
     """
     Starts psistats in the current terminal
     """
     out('[x] Starting Psistats service locally...\n')
     
-    conf = config.get_config()
+    conf = config.get_config(args['config'])
     out('[x] Config file: %s\n' % conf.filename)
 
     psistatsApp = app.App(config.get_config())
     psistatsApp.start()
     
 
-def start():
+def start(args):
     """
     Starts psistats as a background service"
     """
     out('[x] Starting Psistats service... ')
-    conf = config.get_config()
-    psistatsApp = app.App(conf)
+    conf = config.get_config(args['config'])
 
-    if is_running(psistatsApp.pidfile_path) == True:
+    if is_running(conf['app']['pidfile']) == True:
         out("Already running!\n")
     else:
         newpid = os.fork()
-
         if newpid == 0:
+            context = init_context(conf)
+            context.open()
 
-            with init_context(conf):
-                psistatsApp.start()
+            psistatsApp = app.App(conf)
+            psistatsApp.start()
 
+            context.close()
             sys.exit()
         else:
             out("ok\n")
+            out('[x] Config file %s\n' % conf.filename)
 
-def stop():
+def stop(args):
     """
     Stop psistats
     """
     out('[x] Stopping Psistats service... ')
-    psistats = app.App(config.get_config())
+    psistats = app.App(config.get_config(args['config']))
 
     if (os.path.isfile(psistats.pidfile_path)):
 
@@ -110,17 +132,17 @@ def stop():
         out("ok\n")
 
 
-def status():
+def status(args):
     """
     Check if pidfile is a valid process"
     """
-    psistats = app.App(config.get_config())
+    psistats = app.App(config.get_config(args['config']))
     if is_running(psistats.pidfile_path) == True:
         sys.stdout.write("running\n")
     else:
         sys.stdout.write("not running\n")
 
-def list_sensors():
+def list_sensors(args):
     """
     List available sensors in a config file format
     """
@@ -149,37 +171,32 @@ def list_sensors():
         libsensors.cleanup()
 
 
-def help():
-    sys.stdout.write('psistats [start|start-local|stop|restart|status|sensors]\n')
-
 def main(argv=None):
 
     if argv == None:
         argv = sys.argv
 
+    parser = get_args_parser()
+    args = vars(parser.parse_args(argv[1:]))
+
+    print args
+
     retval = 0
-    
-    if len(argv) != 2:
-        help()
-        retval = 1
-    elif sys.argv[1] == 'start':
-        start()
-    elif sys.argv[1] == 'stop':
-        stop()
-    elif sys.argv[1] == 'restart':
-        stop()
-        start()
-    elif sys.argv[1] == 'status':
-        status()
-    elif sys.argv[1] == 'start-local':
-        start_local()
-    elif sys.argv[1] == 'sensors':
-        list_sensors()
-    else:
-        sys.stdout.write("psistats [start|start-local|stop|restart|status|sensors]\n")
-        retval = 1
+
+    if 'start' in args and args['start'] == True:
+        start(args)
+    elif 'start_console' in args and args['start_console'] == True:
+        start_local(args)
+    elif 'stop' in args and args['stop'] == True:
+        stop(args)
+    elif 'restart' in args and args['restart'] == True:
+        restart(args)
+    elif 'status' in args and args['status'] == True:
+        status(args)
+    elif 'sensors' in args and args['sensors'] == True:
+        list_sensors(args)
 
     return retval
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
