@@ -9,4 +9,4 @@ echo '    \/__/   \::/  /   \:\__\    |:|  |    \::/  /    |:/  / '
 echo '             \/__/     \/__/     \|__|     \/__/     \/__/  '
 echo ' '
 
-
+cp /usr/share/psistats/psistats.conf /etc/psistats.conf

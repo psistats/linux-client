@@ -27,16 +27,24 @@ set -e
 
 case "$1" in
   start)
-    $DAEMON start
+    $DAEMON --start --config /etc/psistats.conf
     ;;
   stop)
-    $DAEMON stop
+    $DAEMON --stop --config /etc/psistats.conf
     ;;
   status)
-    $DAEMON status
+    $DAEMON --status --config /etc/psistats.conf
+    ;;
+  restart)
+    $DAEMON --stop --config /etc/psistats.conf
+    $DAEMON --start --config /etc/psistats.conf
+    ;;
+  force-reload)
+    $DAEMON --stop --config /etc/psistats.conf
+    $DAEMON --start --config /etc/psistats.conf
     ;;
   *)
-    echo "Usage: $0 {start|stop|status}"
+    echo "Usage: $0 {start|stop|restart|force-reload|status}"
     ;;
 esac
     

@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=psistats
+export PYBUILD_AFTER_INSTALL=rm -rf '{destdir}/{install_dir}/site_egg'
+
+%:
+	dh $@ --with python2,python3 --buildsystem pybuild
+
+

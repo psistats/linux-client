@@ -1,0 +1,12 @@
+Source: psistats
+Section: utils
+Maintainer: Alex Dowgailenko <adow@psikon.com>
+Build-Depends: debhelper (>= 9), dh-python, python-all, python-setuptools
+Standards-Version: 3.9.7
+Homepage: http://psikon.com
+
+Package: psistats
+Architecture: all
+Depends: ${python:Depends}, ${misc:Depends}
+Description: Psistats reporting tool
+
